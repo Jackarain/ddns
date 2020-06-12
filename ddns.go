@@ -13,25 +13,8 @@ import (
 
 	"github.com/axgle/mahonia"
 	"rpi4.p2sp.net/Jackarain/externalip"
-	"goddns/ddnsreg"
+	"rpi4.p2sp.net/Jackarain/ddns/ddnsreg"
 )
-
-/*
-func isIPv6(str string) bool {
-	ip := net.ParseIP(str)
-	return ip.To4() == nil
-}
-
-func isIPv4(str string) bool {
-	ip := net.ParseIP(str)
-	return ip.To4() != nil
-}
-
-func basicAuth(username, password string) string {
-	auth := username + ":" + password
-	return base64.StdEncoding.EncodeToString([]byte(auth))
-}
-*/
 
 func externalIPv6() (string, error) {
 	tr := &http.Transport{
