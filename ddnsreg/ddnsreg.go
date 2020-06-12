@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"rpi4.p2sp.net/Jackarain/externalip"
+	"rpi4.p2sp.net/Jackarain/ddns/externalip"
 )
 
 // RegisterToF3322
