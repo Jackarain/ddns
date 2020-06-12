@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/axgle/mahonia"
-	"rpi4.p2sp.net/Jackarain/externalip"
+	"rpi4.p2sp.net/Jackarain/ddns/externalip"
 	"rpi4.p2sp.net/Jackarain/ddns/ddnsreg"
 )
 
