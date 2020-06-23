@@ -1,4 +1,4 @@
-module rpi4.p2sp.net/Jackarain/ddns
+module git.superpool.io/Jackarain/ddns
 
 go 1.14
 

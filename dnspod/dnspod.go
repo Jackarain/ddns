@@ -10,7 +10,7 @@ import (
 	"os"
 	"strings"
 
-	"rpi4.p2sp.net/Jackarain/ddns/externalip"
+	"git.superpool.io/Jackarain/ddns/externalip"
 )
 
 // RegisterToF3322 ...

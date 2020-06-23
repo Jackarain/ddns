@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"rpi4.p2sp.net/Jackarain/ddns/dnspod"
-	"rpi4.p2sp.net/Jackarain/ddns/externalip"
-	"rpi4.p2sp.net/Jackarain/ddns/godaddy"
+	"git.superpool.io/Jackarain/ddns/dnspod"
+	"git.superpool.io/Jackarain/ddns/externalip"
+	"git.superpool.io/Jackarain/ddns/godaddy"
 )
 
 var (
