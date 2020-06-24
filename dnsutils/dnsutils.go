@@ -63,6 +63,9 @@ func ExternalIPv6() (string, error) {
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: true,
 		},
+		DialContext: (&net.Dialer{
+			DualStack: true,
+		}).DialContext,
 		DisableCompression: false,
 	}
 	httpClient := &http.Client{
@@ -94,6 +97,9 @@ func ExternalIPv4() (string, error) {
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: true,
 		},
+		DialContext: (&net.Dialer{
+			DualStack: true,
+		}).DialContext,
 		DisableCompression: false,
 	}
 	httpClient := &http.Client{
