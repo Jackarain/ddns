@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"git.superpool.io/Jackarain/ddns/externalip"
+	"git.superpool.io/Jackarain/ddns/dnsutils"
 )
 
 // IPv6RegisterToGodaddy ...
@@ -51,12 +51,12 @@ func IPv4RegisterToGodaddy(domain, subdomain, ssoKey, ip string) error {
 // DoGodaddyv6 ...
 func DoGodaddyv6(domain, subdomain, ssoKey string) {
 	// 获取公网IPv6地址.
-	ipv6, err := externalip.ExternalIPv6()
+	ipv6, err := dnsutils.ExternalIPv6()
 	if err != nil {
 		fmt.Println("ipv6: ", err)
 		return
 	}
-	if !externalip.IsIPv6(ipv6) {
+	if !dnsutils.IsIPv6(ipv6) {
 		fmt.Println("external ipv6 error:", ipv6)
 		return
 	}
@@ -69,13 +69,13 @@ func DoGodaddyv6(domain, subdomain, ssoKey string) {
 	// 到文件 ipaddress 中.
 	f, err := os.Open("ipv6address")
 	if err != nil {
-		externalip.FileWriteString("ipv6address", ipv6)
+		dnsutils.FileWriteString("ipv6address", ipv6)
 	}
 
 	buf := make([]byte, 1024)
 	n, _ := f.Read(buf)
 	if n == 0 {
-		externalip.FileWriteString("ipv6address", ipv6)
+		dnsutils.FileWriteString("ipv6address", ipv6)
 	}
 	f.Close()
 
@@ -95,13 +95,13 @@ func DoGodaddyv6(domain, subdomain, ssoKey string) {
 	}
 
 	// 重写ip缓存文件.
-	externalip.FileWriteString("ipv6address", ipv6)
+	dnsutils.FileWriteString("ipv6address", ipv6)
 }
 
 // DoGodaddyv4 ...
 func DoGodaddyv4(domain, subdomain, ssoKey string) {
 	// 获取公网IPv4地址.
-	ipv4, err := externalip.ExternalIPv4()
+	ipv4, err := dnsutils.ExternalIPv4()
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -114,13 +114,13 @@ func DoGodaddyv4(domain, subdomain, ssoKey string) {
 	// 到文件 ipaddress 中.
 	f, err := os.Open("ipv4address")
 	if err != nil {
-		externalip.FileWriteString("ipv4address", ipv4)
+		dnsutils.FileWriteString("ipv4address", ipv4)
 	}
 
 	buf := make([]byte, 1024)
 	n, _ := f.Read(buf)
 	if n == 0 {
-		externalip.FileWriteString("ipv4address", ipv4)
+		dnsutils.FileWriteString("ipv4address", ipv4)
 	}
 	f.Close()
 
@@ -140,5 +140,5 @@ func DoGodaddyv4(domain, subdomain, ssoKey string) {
 	}
 
 	// 重写ip缓存文件.
-	externalip.FileWriteString("ipv4address", ipv4)
+	dnsutils.FileWriteString("ipv4address", ipv4)
 }

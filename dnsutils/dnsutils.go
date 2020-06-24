@@ -1,4 +1,4 @@
-package externalip
+package dnsutils
 
 import (
 	"crypto/tls"

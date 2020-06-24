@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"git.superpool.io/Jackarain/ddns/dnspod"
-	"git.superpool.io/Jackarain/ddns/externalip"
+	"git.superpool.io/Jackarain/ddns/dnsutils"
 	"git.superpool.io/Jackarain/ddns/godaddy"
 )
 
@@ -32,7 +32,7 @@ func init() {
 
 func doDnspod() {
 	ridFileName := subdomain + dnsType
-	rid, err := externalip.FileReadString(ridFileName)
+	rid, err := dnsutils.FileReadString(ridFileName)
 	if err != nil || rid == "" {
 		rid, err = dnspod.FetchRecordID(token, domain, subdomain, dnsType)
 		if err != nil {
@@ -40,7 +40,7 @@ func doDnspod() {
 			return
 		}
 
-		externalip.FileWriteString(ridFileName, rid)
+		dnsutils.FileWriteString(ridFileName, rid)
 	}
 
 	fmt.Println(subdomain, "dnspod record id:", rid)

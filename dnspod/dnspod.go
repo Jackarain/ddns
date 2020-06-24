@@ -10,7 +10,7 @@ import (
 	"os"
 	"strings"
 
-	"git.superpool.io/Jackarain/ddns/externalip"
+	"git.superpool.io/Jackarain/ddns/dnsutils"
 )
 
 // RegisterToF3322 ...
@@ -20,7 +20,7 @@ func RegisterToF3322(ip string) error {
 	if err != nil {
 		return err
 	}
-	request.Header.Add("Authorization", "Basic "+externalip.BasicAuth("wgm001", "ggfggc"))
+	request.Header.Add("Authorization", "Basic "+dnsutils.BasicAuth("wgm001", "ggfggc"))
 	f3322Client := &http.Client{}
 	response, err := f3322Client.Do(request)
 	if err != nil {
@@ -73,12 +73,12 @@ func IPv4RegisterToDNSPOD(domain, subdomain, rid, ip string) error {
 // DoDNSPODv6 ...
 func DoDNSPODv6(domain, subdomain, rid string) {
 	// 获取公网IPv6地址.
-	ipv6, err := externalip.ExternalIPv6()
+	ipv6, err := dnsutils.ExternalIPv6()
 	if err != nil {
 		fmt.Println("ipv6: ", err)
 		return
 	}
-	if !externalip.IsIPv6(ipv6) {
+	if !dnsutils.IsIPv6(ipv6) {
 		fmt.Println("external ipv6 error:", ipv6)
 		return
 	}
@@ -91,13 +91,13 @@ func DoDNSPODv6(domain, subdomain, rid string) {
 	// 到文件 ipaddress 中.
 	f, err := os.Open("ipv6address")
 	if err != nil {
-		externalip.FileWriteString("ipv6address", ipv6)
+		dnsutils.FileWriteString("ipv6address", ipv6)
 	}
 
 	buf := make([]byte, 1024)
 	n, _ := f.Read(buf)
 	if n == 0 {
-		externalip.FileWriteString("ipv6address", ipv6)
+		dnsutils.FileWriteString("ipv6address", ipv6)
 	}
 	f.Close()
 
@@ -117,13 +117,13 @@ func DoDNSPODv6(domain, subdomain, rid string) {
 	}
 
 	// 重写ip缓存文件.
-	externalip.FileWriteString("ipv6address", ipv6)
+	dnsutils.FileWriteString("ipv6address", ipv6)
 }
 
 // DoDNSPODv4 ...
 func DoDNSPODv4(domain, subdomain, rid string) {
 	// 获取公网IPv4地址.
-	ipv4, err := externalip.ExternalIPv4()
+	ipv4, err := dnsutils.ExternalIPv4()
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -136,13 +136,13 @@ func DoDNSPODv4(domain, subdomain, rid string) {
 	// 到文件 ipaddress 中.
 	f, err := os.Open("ipv4address")
 	if err != nil {
-		externalip.FileWriteString("ipv4address", ipv4)
+		dnsutils.FileWriteString("ipv4address", ipv4)
 	}
 
 	buf := make([]byte, 1024)
 	n, _ := f.Read(buf)
 	if n == 0 {
-		externalip.FileWriteString("ipv4address", ipv4)
+		dnsutils.FileWriteString("ipv4address", ipv4)
 	}
 	f.Close()
 
@@ -162,7 +162,7 @@ func DoDNSPODv4(domain, subdomain, rid string) {
 	}
 
 	// 重写ip缓存文件.
-	externalip.FileWriteString("ipv4address", ipv4)
+	dnsutils.FileWriteString("ipv4address", ipv4)
 }
 
 type dnspodStatus struct {
