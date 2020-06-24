@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	h          bool
+	help       bool
 	useGodaddy bool
 	useDnspod  bool
 	token      string
@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	flag.BoolVar(&h, "help", false, "help message")
+	flag.BoolVar(&help, "help", false, "help message")
 	flag.BoolVar(&useGodaddy, "godaddy", false, "Use godaddy api")
 	flag.BoolVar(&useDnspod, "dnspod", false, "Use dnspod api")
 	flag.StringVar(&token, "token", "", "Api token/secret")
@@ -61,7 +61,7 @@ func doGodaddy() {
 
 func main() {
 	flag.Parse()
-	if h || len(os.Args) == 1 {
+	if help || len(os.Args) == 1 {
 		flag.Usage()
 	}
 
