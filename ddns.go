@@ -63,6 +63,7 @@ func main() {
 	flag.Parse()
 	if help || len(os.Args) == 1 {
 		flag.Usage()
+		return
 	}
 
 	if useDnspod {
