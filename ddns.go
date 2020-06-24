@@ -18,6 +18,11 @@ var (
 	domain     string
 	subdomain  string
 	dnsType    string
+
+	command string
+	args    string
+
+	extIP string
 )
 
 func init() {
@@ -28,6 +33,9 @@ func init() {
 	flag.StringVar(&domain, "domain", "", "Main domain")
 	flag.StringVar(&subdomain, "subdomain", "", "Sub domain")
 	flag.StringVar(&dnsType, "dnstype", "", "dns type, AAAA/A")
+
+	flag.StringVar(&command, "command", "", "ip use command result")
+	flag.StringVar(&args, "args", "", "command args")
 }
 
 func doDnspod() {
@@ -43,19 +51,30 @@ func doDnspod() {
 		dnsutils.FileWriteString(ridFileName, rid)
 	}
 
+	var extIP string
+	if command != "" {
+		extIP = dnsutils.DoCommand(command, args)
+	}
+
 	fmt.Println(subdomain, "dnspod record id:", rid)
 	if dnsType == "A" {
-		dnspod.DoDNSPODv4(domain, subdomain, rid)
+		dnspod.DoDNSPODv4(domain, subdomain, rid, extIP)
 	} else if dnsType == "AAAA" {
-		dnspod.DoDNSPODv6(domain, subdomain, rid)
+		dnspod.DoDNSPODv6(domain, subdomain, rid, extIP)
 	}
 }
 
 func doGodaddy() {
+	var extIP string
+	if command != "" {
+		extIP = dnsutils.DoCommand(command, args)
+		fmt.Println(extIP)
+	}
+
 	if dnsType == "A" {
-		godaddy.DoGodaddyv4(domain, subdomain, token)
+		godaddy.DoGodaddyv4(domain, subdomain, token, extIP)
 	} else if dnsType == "AAAA" {
-		godaddy.DoGodaddyv6(domain, subdomain, token)
+		godaddy.DoGodaddyv6(domain, subdomain, token, extIP)
 	}
 }
 

@@ -71,18 +71,23 @@ func IPv4RegisterToDNSPOD(domain, subdomain, rid, ip string) error {
 }
 
 // DoDNSPODv6 ...
-func DoDNSPODv6(domain, subdomain, rid string) {
-	// 获取公网IPv6地址.
-	ipv6, err := dnsutils.ExternalIPv6()
-	if err != nil {
-		fmt.Println("ipv6: ", err)
-		return
+func DoDNSPODv6(domain, subdomain, rid, extIP string) {
+	var ipv6 string
+	if extIP == "" {
+		ip, err := dnsutils.ExternalIPv6()
+		if err != nil {
+			fmt.Println("ipv6: ", err)
+			return
+		}
+		ipv6 = ip
+	} else {
+		ipv6 = extIP
 	}
+
 	if !dnsutils.IsIPv6(ipv6) {
 		fmt.Println("external ipv6 error:", ipv6)
 		return
 	}
-
 	fmt.Println("external ipv6: ", ipv6)
 
 	// 如果能打开ipaddress, 则读取ipaddress中的ip
@@ -121,13 +126,19 @@ func DoDNSPODv6(domain, subdomain, rid string) {
 }
 
 // DoDNSPODv4 ...
-func DoDNSPODv4(domain, subdomain, rid string) {
-	// 获取公网IPv4地址.
-	ipv4, err := dnsutils.ExternalIPv4()
-	if err != nil {
-		fmt.Println(err)
-		return
+func DoDNSPODv4(domain, subdomain, rid, extIP string) {
+	var ipv4 string
+	if extIP == "" {
+		ip, err := dnsutils.ExternalIPv4()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		ipv4 = ip
+	} else {
+		ipv4 = extIP
 	}
+
 	fmt.Println("external ipv4: ", ipv4)
 
 	// 如果能打开ipaddress, 则读取ipaddress中的ip

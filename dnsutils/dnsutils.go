@@ -1,6 +1,7 @@
 package dnsutils
 
 import (
+	"bytes"
 	"crypto/tls"
 	"encoding/base64"
 	"fmt"
@@ -8,8 +9,12 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/exec"
+	"unicode/utf8"
 
 	"github.com/axgle/mahonia"
+	"github.com/saintfish/chardet"
+	"golang.org/x/net/html/charset"
 )
 
 // FileWriteString ...
@@ -112,4 +117,39 @@ func ExternalIPv4() (string, error) {
 
 	ipv4 := mahonia.NewDecoder("gbk").ConvertString(string(body))
 	return ipv4, err
+}
+
+func convrtToUTF8(str string, origEncoding string) string {
+	strBytes := []byte(str)
+	byteReader := bytes.NewReader(strBytes)
+	reader, _ := charset.NewReaderLabel(origEncoding, byteReader)
+	strBytes, _ = ioutil.ReadAll(reader)
+	return string(strBytes)
+}
+
+func DoCommand(cmd string, args string) string {
+	out, err := exec.Command(cmd, args).Output()
+	if err != nil {
+		return ""
+	}
+
+	if !utf8.Valid(out) {
+		detector := chardet.NewTextDetector()
+		result, err := detector.DetectBest(out)
+		var encoding string
+		if err == nil {
+			if result.Language == "zh" {
+				encoding = "gbk"
+			} else {
+				encoding = result.Charset
+			}
+		}
+		utf8 := convrtToUTF8(string(out), encoding)
+		if err != nil {
+			return string(out)
+		}
+		return string(utf8)
+	}
+
+	return string(out)
 }
