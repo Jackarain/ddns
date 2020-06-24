@@ -24,3 +24,7 @@ dnspod使用示例
 ./ddns --dnspod --domain superpool.io --subdomain test --dnstype AAAA --token "1111111:123123123"
 ```
 
+三方工具获取ip(默认请求ipify.org获取ip)使用示例
+```
+./ddns --dnspod --domain superpool.io --subdomain test --dnstype A --token "1111111:123123123" --command "curl" --args "http://ipecho.net/plain"
+```
