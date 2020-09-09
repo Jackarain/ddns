@@ -29,7 +29,7 @@ func init() {
 	flag.BoolVar(&help, "help", false, "help message")
 	flag.BoolVar(&useGodaddy, "godaddy", false, "Use godaddy api")
 	flag.BoolVar(&useDnspod, "dnspod", false, "Use dnspod api")
-	flag.StringVar(&token, "token", "", "Api token/secret")
+	flag.StringVar(&token, "token", "", "Api token/secret,godaddy api-key:secret")
 	flag.StringVar(&domain, "domain", "", "Main domain")
 	flag.StringVar(&subdomain, "subdomain", "", "Sub domain")
 	flag.StringVar(&dnsType, "dnstype", "", "dns type, AAAA/A")
