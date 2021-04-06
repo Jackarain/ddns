@@ -2,7 +2,6 @@ package dnsutils
 
 import (
 	"bytes"
-	"crypto/tls"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
@@ -59,18 +58,7 @@ func BasicAuth(username, password string) string {
 
 // ExternalIPv6 ...
 func ExternalIPv6() (string, error) {
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: true,
-		},
-		DialContext: (&net.Dialer{
-			DualStack: true,
-		}).DialContext,
-		DisableCompression: false,
-	}
-	httpClient := &http.Client{
-		Transport: tr,
-	}
+	httpClient := &http.Client{}
 
 	const ipv6URL = "http://api6.ipify.org"
 	req, err := http.NewRequest("GET", ipv6URL, nil)
@@ -93,18 +81,7 @@ func ExternalIPv6() (string, error) {
 
 // ExternalIPv4 ...
 func ExternalIPv4() (string, error) {
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: true,
-		},
-		DialContext: (&net.Dialer{
-			DualStack: true,
-		}).DialContext,
-		DisableCompression: false,
-	}
-	httpClient := &http.Client{
-		Transport: tr,
-	}
+	httpClient := &http.Client{}
 
 	const ipv4URL = "http://api.ipify.org"
 	req, err := http.NewRequest("GET", ipv4URL, nil)
