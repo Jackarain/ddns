@@ -72,7 +72,7 @@ func ExternalIPv6() (string, error) {
 		Transport: tr,
 	}
 
-	const ipv6URL = "https://api6.ipify.org"
+	const ipv6URL = "http://api6.ipify.org"
 	req, err := http.NewRequest("GET", ipv6URL, nil)
 	if err != nil {
 		return "", err
@@ -106,7 +106,7 @@ func ExternalIPv4() (string, error) {
 		Transport: tr,
 	}
 
-	const ipv4URL = "https://api.ipify.org"
+	const ipv4URL = "http://api.ipify.org"
 	req, err := http.NewRequest("GET", ipv4URL, nil)
 	if err != nil {
 		return "", err
