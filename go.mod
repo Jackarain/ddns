@@ -1,4 +1,4 @@
-module git.superpool.io/Jackarain/ddns
+module git.codinge.cn/Jackarain/ddns
 
 go 1.14
 

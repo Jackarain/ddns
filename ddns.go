@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"git.superpool.io/Jackarain/ddns/dnspod"
-	"git.superpool.io/Jackarain/ddns/dnsutils"
-	"git.superpool.io/Jackarain/ddns/godaddy"
+	"git.codinge.cn/Jackarain/ddns/dnspod"
+	"git.codinge.cn/Jackarain/ddns/dnsutils"
+	"git.codinge.cn/Jackarain/ddns/godaddy"
 )
 
 var (

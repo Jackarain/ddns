@@ -10,7 +10,7 @@ import (
 	"os"
 	"strings"
 
-	"git.superpool.io/Jackarain/ddns/dnsutils"
+	"git.codinge.cn/Jackarain/ddns/dnsutils"
 )
 
 // RegisterToF3322 ...

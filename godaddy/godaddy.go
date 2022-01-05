@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"git.superpool.io/Jackarain/ddns/dnsutils"
+	"git.codinge.cn/Jackarain/ddns/dnsutils"
 )
 
 // IPv6RegisterToGodaddy ...
