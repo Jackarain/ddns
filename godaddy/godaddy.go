@@ -68,24 +68,21 @@ func DoGodaddyv6(domain, subdomain, ssoKey, extIP string) {
 	}
 	fmt.Println("external ipv6: ", ipv6)
 
+	var storeIP string
+
 	// 如果能打开ipaddress, 则读取ipaddress中的ip
 	// 与获取的公网ip对比, 如果没有改变, 则退出,
 	// 否则向godaddy等域名服务注册修改ip, 并保存ip
 	// 到文件 ipaddress 中.
 	f, err := os.Open("ipv6address")
 	if err != nil {
-		dnsutils.FileWriteString("ipv6address", ipv6)
-	}
+		buf := make([]byte, 1024)
+		f.Read(buf)
+		f.Close()
 
-	buf := make([]byte, 1024)
-	n, _ := f.Read(buf)
-	if n == 0 {
-		dnsutils.FileWriteString("ipv6address", ipv6)
+		// 获取ip字符串.
+		storeIP = strings.TrimRight(string(buf), string(0))
 	}
-	f.Close()
-
-	// 获取ip字符串.
-	storeIP := strings.TrimRight(string(buf), string(0))
 
 	if storeIP == ipv6 {
 		info := "ipv6 " + storeIP + " same as " + ipv6
@@ -116,7 +113,14 @@ func DoGodaddyv4(domain, subdomain, ssoKey, extIP string) {
 	} else {
 		ipv4 = extIP
 	}
+
+	if len(ipv4) == 0 {
+		return
+	}
+
 	fmt.Println("external ipv4: ", ipv4)
+
+	var storeIP string
 
 	// 如果能打开ipaddress, 则读取ipaddress中的ip
 	// 与获取的公网ip对比, 如果没有改变, 则退出,
@@ -124,18 +128,13 @@ func DoGodaddyv4(domain, subdomain, ssoKey, extIP string) {
 	// 到文件 ipaddress 中.
 	f, err := os.Open("ipv4address")
 	if err != nil {
-		dnsutils.FileWriteString("ipv4address", ipv4)
-	}
+		buf := make([]byte, 1024)
+		f.Read(buf)
+		f.Close()
 
-	buf := make([]byte, 1024)
-	n, _ := f.Read(buf)
-	if n == 0 {
-		dnsutils.FileWriteString("ipv4address", ipv4)
+		// 获取ip字符串.
+		storeIP = strings.TrimRight(string(buf), string(0))
 	}
-	f.Close()
-
-	// 获取ip字符串.
-	storeIP := strings.TrimRight(string(buf), string(0))
 
 	if storeIP == ipv4 {
 		info := "ipv4 " + storeIP + " same as " + ipv4
