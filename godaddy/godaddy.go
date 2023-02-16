@@ -75,7 +75,7 @@ func DoGodaddyv6(domain, subdomain, ssoKey, extIP string) {
 	// 否则向godaddy等域名服务注册修改ip, 并保存ip
 	// 到文件 ipaddress 中.
 	f, err := os.Open("ipv6address")
-	if err != nil {
+	if err == nil {
 		buf := make([]byte, 1024)
 		f.Read(buf)
 		f.Close()
@@ -127,7 +127,7 @@ func DoGodaddyv4(domain, subdomain, ssoKey, extIP string) {
 	// 否则向godaddy等域名服务注册修改ip, 并保存ip
 	// 到文件 ipaddress 中.
 	f, err := os.Open("ipv4address")
-	if err != nil {
+	if err == nil {
 		buf := make([]byte, 1024)
 		f.Read(buf)
 		f.Close()
