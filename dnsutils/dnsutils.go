@@ -2,6 +2,7 @@ package dnsutils
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
@@ -9,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"time"
 	"unicode/utf8"
 
 	"github.com/axgle/mahonia"
@@ -63,7 +65,18 @@ func BasicAuth(username, password string) string {
 
 // ExternalIPv6 ...
 func ExternalIPv6() (string, error) {
-	httpClient := &http.Client{}
+	dialer := &net.Dialer{
+		Timeout:   30 * time.Second,
+		KeepAlive: 30 * time.Second,
+	}
+
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+				return dialer.DialContext(ctx, "tcp6", addr)
+			},
+		},
+	}
 
 	var ipv6URL = "http://api6.ipify.org"
 	if FetchIPv6AddrUrl != "" {
@@ -89,7 +102,18 @@ func ExternalIPv6() (string, error) {
 
 // ExternalIPv4 ...
 func ExternalIPv4() (string, error) {
-	httpClient := &http.Client{}
+	dialer := &net.Dialer{
+		Timeout:   30 * time.Second,
+		KeepAlive: 30 * time.Second,
+	}
+
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+				return dialer.DialContext(ctx, "tcp4", addr)
+			},
+		},
+	}
 
 	var ipv4URL = "http://api.ipify.org"
 	if FetchIPv4AddrUrl != "" {
