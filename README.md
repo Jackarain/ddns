@@ -24,7 +24,12 @@ dnspod使用示例
 ./ddns --dnspod --domain superpool.io --subdomain test --dnstype AAAA --token "1111111:123123123"
 ```
 
-三方工具获取ip(默认请求ipify.org获取ip)使用示例
+f3322使用示例
 ```
-./ddns --dnspod --domain superpool.io --subdomain test --dnstype A --token "1111111:123123123" --command "curl" --args "http://ipecho.net/plain"
+./ddns --f3322 -f3322user root -f3322passwd xxxxxxxx --domain test.f3322.net
+```
+
+三方工具获取公网ip(默认请求 ipify.org 获取ip)使用示例
+```
+./ddns --dnspod --domain superpool.io --subdomain test --dnstype A --token "1111111:123123123" --command "curl https://ipv4.seeip.org"
 ```
