@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 	"unicode/utf8"
 
@@ -145,8 +146,14 @@ func convrtToUTF8(str string, origEncoding string) string {
 	return string(strBytes)
 }
 
-func DoCommand(cmd string, args string) string {
-	out, err := exec.Command(cmd, args).Output()
+func executeCommand(input string) ([]byte, error) {
+	parts := strings.Fields(input)
+	cmd := exec.Command(parts[0], parts[1:]...)
+	return cmd.Output()
+}
+
+func DoCommand(cmd string) string {
+	out, err := executeCommand(cmd)
 	if err != nil {
 		return ""
 	}
@@ -164,10 +171,10 @@ func DoCommand(cmd string, args string) string {
 		}
 		utf8 := convrtToUTF8(string(out), encoding)
 		if err != nil {
-			return string(out)
+			return strings.TrimSpace(string(out))
 		}
-		return string(utf8)
+		return strings.TrimSpace(string(utf8))
 	}
 
-	return string(out)
+	return strings.TrimSpace(string(out))
 }

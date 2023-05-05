@@ -22,7 +22,6 @@ var (
 	dnsType    string
 
 	command string
-	args    string
 
 	extIP string
 )
@@ -42,7 +41,6 @@ func init() {
 	flag.StringVar(&dnsType, "dnstype", "A", "dns type, AAAA/A")
 
 	flag.StringVar(&command, "command", "", "ip use command result")
-	flag.StringVar(&args, "args", "", "command args")
 }
 
 func doDnspod() {
@@ -60,7 +58,8 @@ func doDnspod() {
 
 	var extIP string
 	if command != "" {
-		extIP = dnsutils.DoCommand(command, args)
+		extIP = dnsutils.DoCommand(command)
+		fmt.Println(extIP)
 	}
 
 	fmt.Println(subdomain, "dnspod record id:", rid)
@@ -74,7 +73,7 @@ func doDnspod() {
 func doGodaddy() {
 	var extIP string
 	if command != "" {
-		extIP = dnsutils.DoCommand(command, args)
+		extIP = dnsutils.DoCommand(command)
 		fmt.Println(extIP)
 	}
 
@@ -93,7 +92,7 @@ func doF3322() {
 
 	var extIP string
 	if command != "" {
-		extIP = dnsutils.DoCommand(command, args)
+		extIP = dnsutils.DoCommand(command)
 		fmt.Println(extIP)
 	}
 
