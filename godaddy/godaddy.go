@@ -10,8 +10,8 @@ import (
 	"github.com/Jackarain/ddns/dnsutils"
 )
 
-// IPv6RegisterToGodaddy ...
-func IPv6RegisterToGodaddy(domain, subdomain, ssoKey, ip string) error {
+// ipv6RegisterToGodaddy ...
+func ipv6RegisterToGodaddy(domain, subdomain, ssoKey, ip string) error {
 	URL := "https://api.godaddy.com/v1/domains/" + domain + "/records/AAAA/" + subdomain
 	payload := strings.NewReader("[{\"data\": \"" + ip + "\"}]")
 	req, _ := http.NewRequest("PUT", URL, payload)
@@ -29,8 +29,8 @@ func IPv6RegisterToGodaddy(domain, subdomain, ssoKey, ip string) error {
 	return err
 }
 
-// IPv4RegisterToGodaddy ...
-func IPv4RegisterToGodaddy(domain, subdomain, ssoKey, ip string) error {
+// ipv4RegisterToGodaddy ...
+func ipv4RegisterToGodaddy(domain, subdomain, ssoKey, ip string) error {
 	URL := "https://api.godaddy.com/v1/domains/" + domain + "/records/A/" + subdomain
 	payload := strings.NewReader("[{\"data\": \"" + ip + "\"}]")
 	req, _ := http.NewRequest("PUT", URL, payload)
@@ -90,7 +90,7 @@ func DoGodaddyv6(domain, subdomain, ssoKey, extIP string) {
 		return
 	}
 
-	err = IPv6RegisterToGodaddy(domain, subdomain, ssoKey, ipv6)
+	err = ipv6RegisterToGodaddy(domain, subdomain, ssoKey, ipv6)
 	if err != nil {
 		fmt.Println("register to godaddy error: ", err)
 		return
@@ -142,7 +142,7 @@ func DoGodaddyv4(domain, subdomain, ssoKey, extIP string) {
 		return
 	}
 
-	err = IPv4RegisterToGodaddy(domain, subdomain, ssoKey, ipv4)
+	err = ipv4RegisterToGodaddy(domain, subdomain, ssoKey, ipv4)
 	if err != nil {
 		fmt.Println("register to godaddy error: ", err)
 		return

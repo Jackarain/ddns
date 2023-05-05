@@ -13,25 +13,8 @@ import (
 	"github.com/Jackarain/ddns/dnsutils"
 )
 
-// RegisterToF3322 ...
-func RegisterToF3322(ip string) error {
-	f3322Url := "http://members.3322.net/dyndns/update?system=dyndns&hostname=sgrc.f3322.net&myip=" + ip
-	request, err := http.NewRequest("GET", f3322Url, nil)
-	if err != nil {
-		return err
-	}
-	request.Header.Add("Authorization", "Basic "+dnsutils.BasicAuth("wgm001", "ggfggc"))
-	f3322Client := &http.Client{}
-	response, err := f3322Client.Do(request)
-	if err != nil {
-		return err
-	}
-	response.Body.Close()
-	return nil
-}
-
-// IPv6RegisterToDNSPOD ...
-func IPv6RegisterToDNSPOD(domain, subdomain, rid, ip string) error {
+// ipv6RegisterToDNSPOD ...
+func ipv6RegisterToDNSPOD(domain, subdomain, rid, ip string) error {
 	dnspodURL := "https://dnsapi.cn/Record.Modify"
 	response, err := http.PostForm(dnspodURL, url.Values{
 		"login_token": {"11898,8d7347cd5969f7aa89752c068a6b949a"},
@@ -50,8 +33,8 @@ func IPv6RegisterToDNSPOD(domain, subdomain, rid, ip string) error {
 	return nil
 }
 
-// IPv4RegisterToDNSPOD ...
-func IPv4RegisterToDNSPOD(domain, subdomain, rid, ip string) error {
+// ipv4RegisterToDNSPOD ...
+func ipv4RegisterToDNSPOD(domain, subdomain, rid, ip string) error {
 	dnspodURL := "https://dnsapi.cn/Record.Modify"
 	response, err := http.PostForm(dnspodURL, url.Values{
 		"login_token": {"11898,8d7347cd5969f7aa89752c068a6b949a"},
@@ -112,7 +95,7 @@ func DoDNSPODv6(domain, subdomain, rid, extIP string) {
 		return
 	}
 
-	err = IPv6RegisterToDNSPOD(domain, subdomain, rid, ipv6)
+	err = ipv6RegisterToDNSPOD(domain, subdomain, rid, ipv6)
 	if err != nil {
 		fmt.Println("register to dnspod error: ", err)
 		return
@@ -165,7 +148,7 @@ func DoDNSPODv4(domain, subdomain, rid, extIP string) {
 		return
 	}
 
-	err = IPv4RegisterToDNSPOD(domain, subdomain, rid, ipv4)
+	err = ipv4RegisterToDNSPOD(domain, subdomain, rid, ipv4)
 	if err != nil {
 		fmt.Println("register to dnspod error: ", err)
 		return
