@@ -2,6 +2,7 @@ package f3322
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
@@ -23,12 +24,15 @@ func registerToF3322(domain, ip string) error {
 	}
 	request.Header.Add("Authorization", "Basic "+dnsutils.BasicAuth(User, Passwd))
 	f3322Client := &http.Client{}
-	response, err := f3322Client.Do(request)
+	res, err := f3322Client.Do(request)
 	if err != nil {
+		fmt.Println("error: ", err.Error())
 		return err
 	}
-	response.Body.Close()
-	return nil
+	defer res.Body.Close()
+	body, _ := ioutil.ReadAll(res.Body)
+	fmt.Println(string(body))
+	return err
 }
 
 // DoF3322v4 ...

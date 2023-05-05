@@ -39,7 +39,7 @@ func init() {
 	flag.StringVar(&token, "token", "", "Api token/secret,godaddy api-key:secret")
 	flag.StringVar(&domain, "domain", "", "Main domain")
 	flag.StringVar(&subdomain, "subdomain", "", "Sub domain")
-	flag.StringVar(&dnsType, "dnstype", "", "dns type, AAAA/A")
+	flag.StringVar(&dnsType, "dnstype", "A", "dns type, AAAA/A")
 
 	flag.StringVar(&command, "command", "", "ip use command result")
 	flag.StringVar(&args, "args", "", "command args")
