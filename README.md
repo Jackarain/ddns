@@ -14,7 +14,7 @@ go build
 
 ## 使用方法
 
-godaddy使用示例
+godaddy使用示例(请注意，token为 `"API_KEY:API_SECRET"` 组合的字符串)
 ```
 ./ddns --godaddy --domain superpool.io --subdomain test --dnstype AAAA --token "1111111:123123123"
 ```
