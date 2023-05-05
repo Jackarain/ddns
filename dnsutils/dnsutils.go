@@ -16,6 +16,11 @@ import (
 	"golang.org/x/net/html/charset"
 )
 
+var (
+	FetchIPv4AddrUrl string
+	FetchIPv6AddrUrl string
+)
+
 // FileWriteString ...
 func FileWriteString(name, ip string) {
 	f, err := os.Create(name)
@@ -60,7 +65,10 @@ func BasicAuth(username, password string) string {
 func ExternalIPv6() (string, error) {
 	httpClient := &http.Client{}
 
-	const ipv6URL = "http://api6.ipify.org"
+	var ipv6URL = "http://api6.ipify.org"
+	if FetchIPv6AddrUrl != "" {
+		ipv6URL = FetchIPv6AddrUrl
+	}
 	req, err := http.NewRequest("GET", ipv6URL, nil)
 	if err != nil {
 		return "", err
@@ -83,7 +91,10 @@ func ExternalIPv6() (string, error) {
 func ExternalIPv4() (string, error) {
 	httpClient := &http.Client{}
 
-	const ipv4URL = "http://api.ipify.org"
+	var ipv4URL = "http://api.ipify.org"
+	if FetchIPv4AddrUrl != "" {
+		ipv4URL = FetchIPv4AddrUrl
+	}
 	req, err := http.NewRequest("GET", ipv4URL, nil)
 	if err != nil {
 		return "", err

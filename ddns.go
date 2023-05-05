@@ -29,6 +29,8 @@ func init() {
 	flag.BoolVar(&help, "help", false, "help message")
 	flag.BoolVar(&useGodaddy, "godaddy", false, "Use godaddy api")
 	flag.BoolVar(&useDnspod, "dnspod", false, "Use dnspod api")
+	flag.StringVar(&dnsutils.FetchIPv4AddrUrl, "externalIPv4", "", "Provide a URL to get the external IPv4 address")
+	flag.StringVar(&dnsutils.FetchIPv6AddrUrl, "externalIPv6", "", "Provide a URL to get the external IPv6 address")
 	flag.StringVar(&token, "token", "", "Api token/secret,godaddy api-key:secret")
 	flag.StringVar(&domain, "domain", "", "Main domain")
 	flag.StringVar(&subdomain, "subdomain", "", "Sub domain")
