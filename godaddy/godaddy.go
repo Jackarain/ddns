@@ -21,9 +21,6 @@ func ipv6RegisterToGodaddy(domain, subdomain, ssoKey, ip string) error {
 
 	res, err := http.DefaultClient.Do(req)
 	defer res.Body.Close()
-	if err == nil {
-		return nil
-	}
 	body, _ := ioutil.ReadAll(res.Body)
 	fmt.Println(string(body))
 	return err
@@ -40,9 +37,6 @@ func ipv4RegisterToGodaddy(domain, subdomain, ssoKey, ip string) error {
 
 	res, err := http.DefaultClient.Do(req)
 	defer res.Body.Close()
-	if err == nil {
-		return nil
-	}
 	body, _ := ioutil.ReadAll(res.Body)
 	fmt.Println(string(body))
 	return err
