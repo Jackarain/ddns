@@ -7,6 +7,7 @@ import (
 
 	"github.com/Jackarain/ddns/dnspod"
 	"github.com/Jackarain/ddns/dnsutils"
+	"github.com/Jackarain/ddns/f3322"
 	"github.com/Jackarain/ddns/godaddy"
 )
 
@@ -14,6 +15,7 @@ var (
 	help       bool
 	useGodaddy bool
 	useDnspod  bool
+	useF3322   bool
 	token      string
 	domain     string
 	subdomain  string
@@ -29,6 +31,9 @@ func init() {
 	flag.BoolVar(&help, "help", false, "help message")
 	flag.BoolVar(&useGodaddy, "godaddy", false, "Use godaddy api")
 	flag.BoolVar(&useDnspod, "dnspod", false, "Use dnspod api")
+	flag.BoolVar(&useF3322, "f3322", false, "Use f3322 api")
+	flag.StringVar(&f3322.User, "f3322user", "", "f3322 username")
+	flag.StringVar(&f3322.Passwd, "f3322passwd", "", "f3322 password")
 	flag.StringVar(&dnsutils.FetchIPv4AddrUrl, "externalIPv4", "", "Provide a URL to get the external IPv4 address")
 	flag.StringVar(&dnsutils.FetchIPv6AddrUrl, "externalIPv6", "", "Provide a URL to get the external IPv6 address")
 	flag.StringVar(&token, "token", "", "Api token/secret,godaddy api-key:secret")
@@ -80,6 +85,25 @@ func doGodaddy() {
 	}
 }
 
+func doF3322() {
+	if len(f3322.User) == 0 || len(f3322.Passwd) == 0 {
+		fmt.Println("f3322user and f3322passwd required")
+		return
+	}
+
+	var extIP string
+	if command != "" {
+		extIP = dnsutils.DoCommand(command, args)
+		fmt.Println(extIP)
+	}
+
+	if dnsType == "A" {
+		f3322.DoF3322v4(domain, extIP)
+	} else if dnsType == "AAAA" {
+		fmt.Println("f3322 doesn’t work with ipv6")
+	}
+}
+
 func main() {
 	flag.Parse()
 	if help || len(os.Args) == 1 {
@@ -91,5 +115,7 @@ func main() {
 		doDnspod()
 	} else if useGodaddy {
 		doGodaddy()
+	} else if useF3322 {
+		doF3322()
 	}
 }
