@@ -116,7 +116,7 @@ func doNamesilo() {
 			return
 		}
 
-		dnsutils.FileWriteString(ridFileName, rid)
+		// dnsutils.FileWriteString(ridFileName, rid)
 	}
 
 	var extIP string
