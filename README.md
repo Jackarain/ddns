@@ -24,6 +24,11 @@ dnspod使用示例
 ./ddns --dnspod --domain superpool.io --subdomain test --dnstype AAAA --token "1111111:123123123"
 ```
 
+namesilo使用示例
+```
+./ddns --namesilo --domain superpool.io --subdomain test --dnstype AAAA --token "1111111:123123123"
+```
+
 f3322使用示例
 ```
 ./ddns --f3322 -f3322user root -f3322passwd xxxxxxxx --domain test.f3322.net
