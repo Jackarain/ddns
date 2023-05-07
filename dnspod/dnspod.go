@@ -14,10 +14,10 @@ import (
 )
 
 // ipv6RegisterToDNSPOD ...
-func ipv6RegisterToDNSPOD(domain, subdomain, rid, ip string) error {
+func ipv6RegisterToDNSPOD(domain, subdomain, token, rid, ip string) error {
 	dnspodURL := "https://dnsapi.cn/Record.Modify"
 	res, err := http.PostForm(dnspodURL, url.Values{
-		"login_token": {"11898,8d7347cd5969f7aa89752c068a6b949a"},
+		"login_token": {token},
 		"format":      {"json"},
 		"domain":      {domain},
 		"record_id":   {rid},
@@ -33,10 +33,10 @@ func ipv6RegisterToDNSPOD(domain, subdomain, rid, ip string) error {
 }
 
 // ipv4RegisterToDNSPOD ...
-func ipv4RegisterToDNSPOD(domain, subdomain, rid, ip string) error {
+func ipv4RegisterToDNSPOD(domain, subdomain, token, rid, ip string) error {
 	dnspodURL := "https://dnsapi.cn/Record.Modify"
 	res, err := http.PostForm(dnspodURL, url.Values{
-		"login_token": {"11898,8d7347cd5969f7aa89752c068a6b949a"},
+		"login_token": {token},
 		"format":      {"json"},
 		"domain":      {domain},
 		"record_id":   {rid},
@@ -52,7 +52,7 @@ func ipv4RegisterToDNSPOD(domain, subdomain, rid, ip string) error {
 }
 
 // DoDNSPODv6 ...
-func DoDNSPODv6(domain, subdomain, rid, extIP string) {
+func DoDNSPODv6(domain, subdomain, token, rid, extIP string) {
 	var ipv6 string
 	if extIP == "" {
 		ip, err := dnsutils.ExternalIPv6()
@@ -93,7 +93,7 @@ func DoDNSPODv6(domain, subdomain, rid, extIP string) {
 		return
 	}
 
-	err = ipv6RegisterToDNSPOD(domain, subdomain, rid, ipv6)
+	err = ipv6RegisterToDNSPOD(domain, subdomain, token, rid, ipv6)
 	if err != nil {
 		fmt.Println("register to dnspod error: ", err)
 		return
@@ -104,7 +104,7 @@ func DoDNSPODv6(domain, subdomain, rid, extIP string) {
 }
 
 // DoDNSPODv4 ...
-func DoDNSPODv4(domain, subdomain, rid, extIP string) {
+func DoDNSPODv4(domain, subdomain, token, rid, extIP string) {
 	var ipv4 string
 	if extIP == "" {
 		ip, err := dnsutils.ExternalIPv4()
@@ -146,7 +146,7 @@ func DoDNSPODv4(domain, subdomain, rid, extIP string) {
 		return
 	}
 
-	err = ipv4RegisterToDNSPOD(domain, subdomain, rid, ipv4)
+	err = ipv4RegisterToDNSPOD(domain, subdomain, token, rid, ipv4)
 	if err != nil {
 		fmt.Println("register to dnspod error: ", err)
 		return

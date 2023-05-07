@@ -9,17 +9,19 @@ import (
 	"github.com/Jackarain/ddns/dnsutils"
 	"github.com/Jackarain/ddns/f3322"
 	"github.com/Jackarain/ddns/godaddy"
+	"github.com/Jackarain/ddns/namesilo"
 )
 
 var (
-	help       bool
-	useGodaddy bool
-	useDnspod  bool
-	useF3322   bool
-	token      string
-	domain     string
-	subdomain  string
-	dnsType    string
+	help        bool
+	useGodaddy  bool
+	useDnspod   bool
+	useF3322    bool
+	useNamesilo bool
+	token       string
+	domain      string
+	subdomain   string
+	dnsType     string
 
 	command string
 
@@ -31,6 +33,7 @@ func init() {
 	flag.BoolVar(&useGodaddy, "godaddy", false, "Use godaddy api")
 	flag.BoolVar(&useDnspod, "dnspod", false, "Use dnspod api")
 	flag.BoolVar(&useF3322, "f3322", false, "Use f3322 api")
+	flag.BoolVar(&useNamesilo, "namesilo", false, "Use namesilo api")
 	flag.StringVar(&f3322.User, "f3322user", "", "f3322 username")
 	flag.StringVar(&f3322.Passwd, "f3322passwd", "", "f3322 password")
 	flag.StringVar(&dnsutils.FetchIPv4AddrUrl, "externalIPv4", "", "Provide a URL to get the external IPv4 address")
@@ -64,9 +67,9 @@ func doDnspod() {
 
 	fmt.Println(subdomain, "dnspod record id:", rid)
 	if dnsType == "A" {
-		dnspod.DoDNSPODv4(domain, subdomain, rid, extIP)
+		dnspod.DoDNSPODv4(domain, subdomain, token, rid, extIP)
 	} else if dnsType == "AAAA" {
-		dnspod.DoDNSPODv6(domain, subdomain, rid, extIP)
+		dnspod.DoDNSPODv6(domain, subdomain, token, rid, extIP)
 	}
 }
 
@@ -103,6 +106,34 @@ func doF3322() {
 	}
 }
 
+func doNamesilo() {
+	ridFileName := subdomain + dnsType
+	rid, err := dnsutils.FileReadString(ridFileName)
+	if err != nil || rid == "" {
+		rid, err = namesilo.FetchRecordID(token, domain, subdomain)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		dnsutils.FileWriteString(ridFileName, rid)
+	}
+
+	var extIP string
+	if command != "" {
+		extIP = dnsutils.DoCommand(command)
+		fmt.Println(extIP)
+	}
+
+	fmt.Println(subdomain, "namesilo record id:", rid)
+
+	if dnsType == "A" {
+		namesilo.DoNamesiloV4(domain, subdomain, token, rid, extIP)
+	} else if dnsType == "AAAA" {
+		namesilo.DoNamesiloV6(domain, subdomain, token, rid, extIP)
+	}
+}
+
 func main() {
 	flag.Parse()
 	if help || len(os.Args) == 1 {
@@ -116,5 +147,7 @@ func main() {
 		doGodaddy()
 	} else if useF3322 {
 		doF3322()
+	} else if useNamesilo {
+		doNamesilo()
 	}
 }
