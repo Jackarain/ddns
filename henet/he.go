@@ -51,6 +51,7 @@ func registerToHenet(domain, subdomain, passwd, ip string) error {
 
 	body, _ := ioutil.ReadAll(res.Body)
 	fmt.Println(string(body))
+
 	return err
 }
 

@@ -30,12 +30,14 @@ type Namesilo struct {
 
 // FetchRecordID ...
 func FetchRecordID(token, domain, subdomain string) (string, error) {
-	namesiloURL := fmt.Sprintf("https://www.namesilo.com/api/dnsListRecords?version=1&type=xml&key=%s&domain=%s", token, domain)
-	request, err := http.NewRequest("GET", namesiloURL, nil)
+	Url := fmt.Sprintf("https://www.namesilo.com/api/dnsListRecords?version=1&type=xml&key=%s&domain=%s", token, domain)
+
+	request, err := http.NewRequest("GET", Url, nil)
 	if err != nil {
 		fmt.Println("error: ", err.Error())
 		return "", err
 	}
+
 	namesiloClient := &http.Client{}
 	res, err := namesiloClient.Do(request)
 	if err != nil {
@@ -43,8 +45,8 @@ func FetchRecordID(token, domain, subdomain string) (string, error) {
 		return "", err
 	}
 	defer res.Body.Close()
+
 	body, _ := ioutil.ReadAll(res.Body)
-	// fmt.Println(string(body))
 
 	var namesilo Namesilo
 	err = xml.Unmarshal(body, &namesilo)
@@ -64,15 +66,15 @@ func FetchRecordID(token, domain, subdomain string) (string, error) {
 }
 
 func registerIP(domain, subdomain, token, rid, extIP string) error {
-	// https://www.namesilo.com/api/dnsUpdateRecord?version=1&type=xml&key=12345&domain=namesilo.com&rrid=1a2b3&rrhost=test&rrvalue=55.55.55.55&rrttl=7207
 	namesiloURL := fmt.Sprintf("https://www.namesilo.com/api/dnsUpdateRecord?version=1&type=xml&key=%s&domain=%s&rrid=%s&rrhost=%s&rrvalue=%s",
 		token, domain, rid, subdomain, extIP)
-	fmt.Println(namesiloURL)
+
 	request, err := http.NewRequest("GET", namesiloURL, nil)
 	if err != nil {
 		fmt.Println("error: ", err.Error())
 		return err
 	}
+
 	namesiloClient := &http.Client{}
 	res, err := namesiloClient.Do(request)
 	if err != nil {
@@ -80,6 +82,7 @@ func registerIP(domain, subdomain, token, rid, extIP string) error {
 		return err
 	}
 	defer res.Body.Close()
+
 	body, _ := ioutil.ReadAll(res.Body)
 	fmt.Println(string(body))
 	return nil
