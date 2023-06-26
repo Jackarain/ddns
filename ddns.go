@@ -9,19 +9,23 @@ import (
 	"github.com/Jackarain/ddns/dnsutils"
 	"github.com/Jackarain/ddns/f3322"
 	"github.com/Jackarain/ddns/godaddy"
+	"github.com/Jackarain/ddns/henet"
 	"github.com/Jackarain/ddns/namesilo"
 )
 
 var (
-	help        bool
+	help bool
+
 	useGodaddy  bool
 	useDnspod   bool
 	useF3322    bool
 	useNamesilo bool
-	token       string
-	domain      string
-	subdomain   string
-	dnsType     string
+	useHenet    bool
+
+	token     string
+	domain    string
+	subdomain string
+	dnsType   string
 
 	command string
 
@@ -30,15 +34,22 @@ var (
 
 func init() {
 	flag.BoolVar(&help, "help", false, "help message")
+
 	flag.BoolVar(&useGodaddy, "godaddy", false, "Use godaddy api")
 	flag.BoolVar(&useDnspod, "dnspod", false, "Use dnspod api")
 	flag.BoolVar(&useF3322, "f3322", false, "Use f3322 api")
 	flag.BoolVar(&useNamesilo, "namesilo", false, "Use namesilo api")
-	flag.StringVar(&f3322.User, "f3322user", "", "f3322 username")
-	flag.StringVar(&f3322.Passwd, "f3322passwd", "", "f3322 password")
+	flag.BoolVar(&useHenet, "henet", false, "Use henet api")
+
 	flag.StringVar(&dnsutils.FetchIPv4AddrUrl, "externalIPv4", "", "Provide a URL to get the external IPv4 address")
 	flag.StringVar(&dnsutils.FetchIPv6AddrUrl, "externalIPv6", "", "Provide a URL to get the external IPv6 address")
-	flag.StringVar(&token, "token", "", "Api token/secret,godaddy api-key:secret")
+
+	// token 用于 dnspod, godaddy, namesilo, henet api
+	flag.StringVar(&token, "token", "", "godaddy api-key:secret-key, dnspod token, namesilo api-key:secret-key, henet password")
+	// f3322user, f3322passwd 用于 f3322 api
+	flag.StringVar(&f3322.User, "f3322user", "", "f3322 username")
+	flag.StringVar(&f3322.Passwd, "f3322passwd", "", "f3322 password")
+
 	flag.StringVar(&domain, "domain", "", "Main domain")
 	flag.StringVar(&subdomain, "subdomain", "", "Sub domain")
 	flag.StringVar(&dnsType, "dnstype", "A", "dns type, AAAA/A")
@@ -134,6 +145,20 @@ func doNamesilo() {
 	}
 }
 
+func doHenet() {
+	var extIP string
+	if command != "" {
+		extIP = dnsutils.DoCommand(command)
+		fmt.Println(extIP)
+	}
+
+	if dnsType == "A" {
+		henet.DoHenetv4(domain, subdomain, token, extIP)
+	} else if dnsType == "AAAA" {
+		henet.DoHenetv6(domain, subdomain, token, extIP)
+	}
+}
+
 func main() {
 	flag.Parse()
 	if help || len(os.Args) == 1 {
@@ -141,13 +166,17 @@ func main() {
 		return
 	}
 
-	if useDnspod {
+	if useDnspod { // dnspod api
 		doDnspod()
-	} else if useGodaddy {
+	} else if useGodaddy { // godaddy api
 		doGodaddy()
-	} else if useF3322 {
+	} else if useF3322 { // f3322 api
 		doF3322()
-	} else if useNamesilo {
+	} else if useNamesilo { // namesilo api
 		doNamesilo()
+	} else if useHenet { // henet api
+		doHenet()
+	} else {
+		fmt.Println("No api selected")
 	}
 }
