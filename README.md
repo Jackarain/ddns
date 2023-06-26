@@ -14,7 +14,7 @@ go build
 
 ## 使用方法
 
-`godaddy` 使用示例(请注意，`token` 为 `"API_KEY:API_SECRET"` 组合的字符串)
+`godaddy` 使用示例(请注意，`token` 为 `"API_KEY:API_SECRET"` 组合的字符串，域名为：`test.example.com`)
 ```
 ./ddns --godaddy --domain example.com --subdomain test --dnstype AAAA --token "1111111:123123123"
 ```
