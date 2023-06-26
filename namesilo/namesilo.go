@@ -60,7 +60,7 @@ func FetchRecordID(token, domain, subdomain string) (string, error) {
 		}
 	}
 
-	return "", errors.New("Not found record id")
+	return "", errors.New("not found record id")
 }
 
 func registerIP(domain, subdomain, token, rid, extIP string) error {
@@ -118,7 +118,7 @@ func DoNamesiloV6(domain, subdomain, token, rid, extIP string) {
 		f.Close()
 
 		// 获取ip字符串.
-		storeIP = strings.TrimRight(string(buf), string(0))
+		storeIP = strings.TrimRight(string(buf), string(rune(0)))
 	}
 
 	if storeIP == ipv6 {
@@ -171,7 +171,7 @@ func DoNamesiloV4(domain, subdomain, token, rid, extIP string) {
 		f.Read(buf)
 		f.Close()
 
-		storeIP = strings.TrimRight(string(buf), string(0))
+		storeIP = strings.TrimRight(string(buf), string(rune(0)))
 	}
 
 	if storeIP == ipv4 {

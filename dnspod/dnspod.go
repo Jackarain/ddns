@@ -15,8 +15,9 @@ import (
 
 // ipv6RegisterToDNSPOD ...
 func ipv6RegisterToDNSPOD(domain, subdomain, token, rid, ip string) error {
-	dnspodURL := "https://dnsapi.cn/Record.Modify"
-	res, err := http.PostForm(dnspodURL, url.Values{
+	Url := "https://dnsapi.cn/Record.Modify"
+
+	res, err := http.PostForm(Url, url.Values{
 		"login_token": {token},
 		"format":      {"json"},
 		"domain":      {domain},
@@ -26,16 +27,22 @@ func ipv6RegisterToDNSPOD(domain, subdomain, token, rid, ip string) error {
 		"record_line": {"默认"},
 		"value":       {ip},
 	})
+	if err != nil {
+		return err
+	}
 	defer res.Body.Close()
+
 	body, _ := ioutil.ReadAll(res.Body)
 	fmt.Println(string(body))
+
 	return err
 }
 
 // ipv4RegisterToDNSPOD ...
 func ipv4RegisterToDNSPOD(domain, subdomain, token, rid, ip string) error {
-	dnspodURL := "https://dnsapi.cn/Record.Modify"
-	res, err := http.PostForm(dnspodURL, url.Values{
+	Url := "https://dnsapi.cn/Record.Modify"
+
+	res, err := http.PostForm(Url, url.Values{
 		"login_token": {token},
 		"format":      {"json"},
 		"domain":      {domain},
@@ -45,9 +52,14 @@ func ipv4RegisterToDNSPOD(domain, subdomain, token, rid, ip string) error {
 		"record_line": {"默认"},
 		"value":       {ip},
 	})
+	if err != nil {
+		return err
+	}
 	defer res.Body.Close()
+
 	body, _ := ioutil.ReadAll(res.Body)
 	fmt.Println(string(body))
+
 	return err
 }
 
@@ -84,7 +96,7 @@ func DoDNSPODv6(domain, subdomain, token, rid, extIP string) {
 		f.Close()
 
 		// 获取ip字符串.
-		storeIP = strings.TrimRight(string(buf), string(0))
+		storeIP = strings.TrimRight(string(buf), string(rune(0)))
 	}
 
 	if storeIP == ipv6 {
@@ -137,7 +149,7 @@ func DoDNSPODv4(domain, subdomain, token, rid, extIP string) {
 		f.Read(buf)
 		f.Close()
 
-		storeIP = strings.TrimRight(string(buf), string(0))
+		storeIP = strings.TrimRight(string(buf), string(rune(0)))
 	}
 
 	if storeIP == ipv4 {

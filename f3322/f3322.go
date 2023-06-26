@@ -17,12 +17,16 @@ var (
 
 // registerToF3322 ...
 func registerToF3322(domain, ip string) error {
-	f3322Url := "http://members.3322.net/dyndns/update?system=dyndns&hostname=" + domain + "&myip=" + ip
-	request, err := http.NewRequest("GET", f3322Url, nil)
+	Url := "http://members.3322.net/dyndns/update?" +
+		"system=dyndns&hostname=" + domain +
+		"&myip=" + ip
+
+	request, err := http.NewRequest("GET", Url, nil)
 	if err != nil {
 		return err
 	}
 	request.Header.Add("Authorization", "Basic "+dnsutils.BasicAuth(User, Passwd))
+
 	f3322Client := &http.Client{}
 	res, err := f3322Client.Do(request)
 	if err != nil {
@@ -30,8 +34,10 @@ func registerToF3322(domain, ip string) error {
 		return err
 	}
 	defer res.Body.Close()
+
 	body, _ := ioutil.ReadAll(res.Body)
 	fmt.Println(string(body))
+
 	return err
 }
 
@@ -68,7 +74,7 @@ func DoF3322v4(domain, extIP string) {
 		f.Close()
 
 		// 获取ip字符串.
-		storeIP = strings.TrimRight(string(buf), string(0))
+		storeIP = strings.TrimRight(string(buf), string(rune(0)))
 	}
 
 	if storeIP == ipv4 {

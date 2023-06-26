@@ -20,9 +20,14 @@ func ipv6RegisterToGodaddy(domain, subdomain, ssoKey, ip string) error {
 	req.Header.Add("Authorization", "sso-key "+ssoKey)
 
 	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
 	defer res.Body.Close()
+
 	body, _ := ioutil.ReadAll(res.Body)
 	fmt.Println(string(body))
+
 	return err
 }
 
@@ -36,7 +41,11 @@ func ipv4RegisterToGodaddy(domain, subdomain, ssoKey, ip string) error {
 	req.Header.Add("Authorization", "sso-key "+ssoKey)
 
 	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
 	defer res.Body.Close()
+
 	body, _ := ioutil.ReadAll(res.Body)
 	fmt.Println(string(body))
 	return err
@@ -75,7 +84,7 @@ func DoGodaddyv6(domain, subdomain, ssoKey, extIP string) {
 		f.Close()
 
 		// 获取ip字符串.
-		storeIP = strings.TrimRight(string(buf), string(0))
+		storeIP = strings.TrimRight(string(buf), string(rune(0)))
 	}
 
 	if storeIP == ipv6 {
@@ -127,7 +136,7 @@ func DoGodaddyv4(domain, subdomain, ssoKey, extIP string) {
 		f.Close()
 
 		// 获取ip字符串.
-		storeIP = strings.TrimRight(string(buf), string(0))
+		storeIP = strings.TrimRight(string(buf), string(rune(0)))
 	}
 
 	if storeIP == ipv4 {
