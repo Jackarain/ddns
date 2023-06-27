@@ -1,5 +1,7 @@
 # DDNS Tool
-
+[![actions workflow](https://github.com/Jackarain/ddns/actions/workflows/go.yml/badge.svg)](https://github.com/Jackarain/ddns/actions)
+\
+\
 A tool for dynamically updating `IP` to domain name configurations, supporting platforms like `dnspod`, `f3322`, `godaddy`, `namesilo`, and `he.net`.
 
 ## Environment Preparation
