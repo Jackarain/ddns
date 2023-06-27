@@ -1,5 +1,9 @@
 # DDNS 工具
-
+[![actions workflow](https://github.com/Jackarain/ddns/actions/workflows/go.yml/badge.svg)](https://github.com/Jackarain/ddns/actions)
+\
+中文 | [English](README_EN.md)
+\
+\
 一个用于动态更新 `IP` 到域名配置的工具，支持 `dnspod`、`f3322`、`godaddy`、`namesilo`、`he.net` 平台.
 
 ## 环境准备
