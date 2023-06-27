@@ -1,4 +1,5 @@
 # DDNS Tool
+
 [![actions workflow](https://github.com/Jackarain/ddns/actions/workflows/go.yml/badge.svg)](https://github.com/Jackarain/ddns/actions)
 \
 \
@@ -19,6 +20,7 @@ In the project directory, execute the following command:
 ```bash
 go build
 ```
+
 Upon successful compilation, an executable program named `ddns` will be generated.
 
 ## Usage
@@ -81,6 +83,7 @@ Here's how you might use the `godaddy` command:
 ```bash
 /path/to/ddns --godaddy --domain example.com --subdomain test --dnstype AAAA --token "1111111:123123123"
 ```
+
 In this example, token is a string comprised of `"API_KEY:API_SECRET"`. The domain here would be `test.example.com`.
 
 Here's an example of how to use `dnspod`:
@@ -95,10 +98,12 @@ Here's how you might use `namesilo`:
 /path/to/ddns --namesilo --domain example.com --subdomain test --dnstype AAAA --token "1111111123123123"
 ```
 
-Here's an example of how to use `f3322`:
+Here's an example of how to use `f3322` and `oray`:
 
 ```bash
-/path/to/ddns --f3322 -f3322user root -f3322passwd xxxxxxxx --domain example.f3322.net
+/path/to/ddns --f3322 -user root -passwd xxxxxxxx --domain example.f3322.net
+
+/path/to/ddns --oray -user root -passwd xxxxxxxx --domain example.vicp.net
 ```
 
 Here's how you might use `he.net`:
@@ -114,7 +119,6 @@ Here's an example of how to obtain the public `ip` by sending a `curl` request t
 ```
 
 By default, `ddns` queries `ipify.org` to obtain the public `ip`.
-
 
 ## Support and Feedback
 
