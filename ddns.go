@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"text/tabwriter"
 
 	"github.com/Jackarain/ddns/dnspod"
 	"github.com/Jackarain/ddns/dnsutils"
@@ -198,18 +197,6 @@ func doOray() {
 func main() {
 	flag.Parse()
 	if help || len(os.Args) == 1 {
-		flag.Usage = func() {
-			w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-			fmt.Fprintln(w, "Usage of", os.Args[0]+":")
-			flag.CommandLine.VisitAll(func(f *flag.Flag) {
-				fmt.Fprintf(w, "  -%s:\t%s ", f.Name, f.Usage)
-				if f.DefValue != "" {
-					fmt.Fprintf(w, "(default %s)\n", f.DefValue)
-				}
-			})
-			w.Flush()
-		}
-
 		flag.Usage()
 		return
 	}
