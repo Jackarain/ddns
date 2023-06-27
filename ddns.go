@@ -118,7 +118,10 @@ func doF3322() {
 	f3322.Passwd = passwd
 
 	if dnsType == "A" {
-		domain = subdomain + "." + domain
+		if len(subdomain) > 0 && len(domain) > 0 {
+			domain = subdomain + "." + domain
+		}
+
 		f3322.DoF3322v4(domain, extIP)
 	} else if dnsType == "AAAA" {
 		fmt.Println("f3322 doesn’t work with ipv6")
@@ -183,7 +186,9 @@ func doOray() {
 	oray.Passwd = passwd
 
 	if dnsType == "A" {
-		domain = subdomain + "." + domain
+		if len(subdomain) > 0 && len(domain) > 0 {
+			domain = subdomain + "." + domain
+		}
 		oray.DoOrayv4(domain, extIP)
 	} else if dnsType == "AAAA" {
 		fmt.Println("oray doesn’t work with ipv6")
