@@ -11,6 +11,7 @@ import (
 	"github.com/Jackarain/ddns/godaddy"
 	"github.com/Jackarain/ddns/henet"
 	"github.com/Jackarain/ddns/namesilo"
+	"github.com/Jackarain/ddns/oray"
 )
 
 var (
@@ -19,17 +20,19 @@ var (
 	useGodaddy  bool
 	useDnspod   bool
 	useF3322    bool
+	useOray     bool
 	useNamesilo bool
 	useHenet    bool
 
-	token     string
+	token  string
+	user   string
+	passwd string
+
 	domain    string
 	subdomain string
 	dnsType   string
 
 	command string
-
-	extIP string
 )
 
 func init() {
@@ -38,6 +41,7 @@ func init() {
 	flag.BoolVar(&useGodaddy, "godaddy", false, "Use godaddy api")
 	flag.BoolVar(&useDnspod, "dnspod", false, "Use dnspod api")
 	flag.BoolVar(&useF3322, "f3322", false, "Use f3322 api")
+	flag.BoolVar(&useOray, "oray", false, "Use oray api")
 	flag.BoolVar(&useNamesilo, "namesilo", false, "Use namesilo api")
 	flag.BoolVar(&useHenet, "henet", false, "Use henet api")
 
@@ -46,9 +50,9 @@ func init() {
 
 	// token 用于 dnspod, godaddy, namesilo, henet api
 	flag.StringVar(&token, "token", "", "godaddy api-key:secret-key, dnspod token, namesilo api-key:secret-key, henet password")
-	// f3322user, f3322passwd 用于 f3322 api
-	flag.StringVar(&f3322.User, "f3322user", "", "f3322 username")
-	flag.StringVar(&f3322.Passwd, "f3322passwd", "", "f3322 password")
+	// user, passwd 用于 f3322/oray api
+	flag.StringVar(&user, "user", "", "f3322/oray username only")
+	flag.StringVar(&passwd, "passwd", "", "f3322/oray password only")
 
 	flag.StringVar(&domain, "domain", "", "Main domain")
 	flag.StringVar(&subdomain, "subdomain", "", "Sub domain")
@@ -99,8 +103,8 @@ func doGodaddy() {
 }
 
 func doF3322() {
-	if len(f3322.User) == 0 || len(f3322.Passwd) == 0 {
-		fmt.Println("f3322user and f3322passwd required")
+	if len(user) == 0 || len(passwd) == 0 {
+		fmt.Println("f3322 user and password required")
 		return
 	}
 
@@ -110,7 +114,11 @@ func doF3322() {
 		fmt.Println(extIP)
 	}
 
+	f3322.User = user
+	f3322.Passwd = passwd
+
 	if dnsType == "A" {
+		domain = subdomain + "." + domain
 		f3322.DoF3322v4(domain, extIP)
 	} else if dnsType == "AAAA" {
 		fmt.Println("f3322 doesn’t work with ipv6")
@@ -159,6 +167,29 @@ func doHenet() {
 	}
 }
 
+func doOray() {
+	if len(user) == 0 || len(passwd) == 0 {
+		fmt.Println("oray username and password required")
+		return
+	}
+
+	var extIP string
+	if command != "" {
+		extIP = dnsutils.DoCommand(command)
+		fmt.Println(extIP)
+	}
+
+	oray.User = user
+	oray.Passwd = passwd
+
+	if dnsType == "A" {
+		domain = subdomain + "." + domain
+		oray.DoOrayv4(domain, extIP)
+	} else if dnsType == "AAAA" {
+		fmt.Println("oray doesn’t work with ipv6")
+	}
+}
+
 func main() {
 	flag.Parse()
 	if help || len(os.Args) == 1 {
@@ -172,6 +203,8 @@ func main() {
 		doGodaddy()
 	} else if useF3322 { // f3322 api
 		doF3322()
+	} else if useOray { // oray api
+		doOray()
 	} else if useNamesilo { // namesilo api
 		doNamesilo()
 	} else if useHenet { // henet api
