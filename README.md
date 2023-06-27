@@ -4,7 +4,7 @@
 
 ## 环境准备
 
-在开始编译前，需要安装 `golang/git` 环境，并使用 `git` 命令将项目克隆到本地
+在开始编译前，需要安装 `golang`/`git` 环境，并使用 `git` 命令将项目克隆到本地
 
 ```bash
 git clone https://github.com/Jackarain/ddns.git
@@ -109,7 +109,7 @@ systemctl enable ddns.timer
 通过 `curl` 请求 `ipv4.seeip.org` 获取公网 `ip` 使用示例
 
 ```bash
-/path/to/ddns --dnspod --domain superpool.io --subdomain test --dnstype A --token "1111111:123123123" --command "curl https://ipv4.seeip.org"
+/path/to/ddns --dnspod --domain example.com --subdomain test --dnstype A --token "1111111:123123123" --command "curl https://ipv4.seeip.org"
 ```
 默认情况下，`ddns` 请求 `ipify.org` 以获取公网 `ip`
 
