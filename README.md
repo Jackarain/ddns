@@ -1,10 +1,11 @@
 # DDNS 工具
+
 [![actions workflow](https://github.com/Jackarain/ddns/actions/workflows/go.yml/badge.svg)](https://github.com/Jackarain/ddns/actions)
 \
 中文 | [English](README_EN.md)
 \
 \
-一个用于动态更新 `IP` 到域名配置的工具，支持 `dnspod`、`f3322`、`godaddy`、`namesilo`、`he.net` 平台.
+一个用于动态更新 `IP` 到域名配置的工具，支持 `dnspod`、`f3322`、`oray`、`godaddy`、`namesilo`、`he.net` 平台.
 
 ## 环境准备
 
@@ -23,7 +24,6 @@ go build
 ```
 
 编译完成后，会生成名为 `ddns` 的可执行程序。
-
 
 ## 使用方法
 
@@ -73,6 +73,7 @@ systemctl start ddns.timer
 # 设置开机自启
 systemctl enable ddns.timer
 ```
+
 以上示例中，`ddns` 程序会在开机后 5 分钟执行一次，之后每 5 分钟执行一次，如果需要修改执行时间，可以修改 `ddns.timer` 文件中的 `OnBootSec` 和 `OnUnitActiveSec` 参数，具体使用方法可以参考 `systemd.timer` 的文档。
 
 `ddns` 可以运行在路由器或 `NAS` 等设备上，这样就可以实现在路由器或 `NAS` 上实现动态更新 `IP` 到域名配置的功能
@@ -84,6 +85,7 @@ systemctl enable ddns.timer
 ```bash
 /path/to/ddns --godaddy --domain example.com --subdomain test --dnstype AAAA --token "1111111:123123123"
 ```
+
 在这个示例中，`token` 是由 `"API_KEY:API_SECRET"` 组成的字符串，域名为：`test.example.com`。
 
 `dnspod` 使用示例
@@ -101,7 +103,13 @@ systemctl enable ddns.timer
 `f3322` 使用示例
 
 ```bash
-/path/to/ddns --f3322 -f3322user root -f3322passwd xxxxxxxx --domain example.f3322.net
+/path/to/ddns --f3322 -user root -passwd xxxxxxxx --domain example.f3322.net
+```
+
+`oray` 使用示例
+
+```bash
+/path/to/ddns --oray -user root -passwd xxxxxxxx --domain example.vicp.net
 ```
 
 `he.net` 使用示例
@@ -115,8 +123,8 @@ systemctl enable ddns.timer
 ```bash
 /path/to/ddns --dnspod --domain example.com --subdomain test --dnstype A --token "1111111:123123123" --command "curl https://ipv4.seeip.org"
 ```
-默认情况下，`ddns` 请求 `ipify.org` 以获取公网 `ip`
 
+默认情况下，`ddns` 请求 `ipify.org` 以获取公网 `ip`
 
 ## 支持和反馈
 
