@@ -1,6 +1,6 @@
 ## DDNS 工具
 
-一个用于动态更新IP到域名配置的工具，支持 `dnspod`、`f3322`、`godaddy`、`namesilo`、`he.net` 平台.
+一个用于动态更新 `IP` 到域名配置的工具，支持 `dnspod`、`f3322`、`godaddy`、`namesilo`、`he.net` 平台.
 
 ## 编译
 
