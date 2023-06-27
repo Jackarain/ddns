@@ -140,7 +140,7 @@ func DoDNSPODv4(domain, subdomain, token, rid, extIP string) {
 
 	// 如果能打开ipaddress, 则读取ipaddress中的ip
 	// 与获取的公网ip对比, 如果没有改变, 则退出,
-	// 否则向dnspod等域名服务注册修改ip, 并保存ip
+	// 否则向域名服务注册修改ip, 并保存ip
 	// 到文件 ipaddress 中.
 
 	f, err := os.Open("ipv4address")
