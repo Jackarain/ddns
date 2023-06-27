@@ -50,6 +50,7 @@ func init() {
 
 	// token 用于 dnspod, godaddy, namesilo, henet api
 	flag.StringVar(&token, "token", "", "godaddy api-key:secret-key, dnspod token, namesilo api-key:secret-key, henet password")
+
 	// user, passwd 用于 f3322/oray api
 	flag.StringVar(&user, "user", "", "f3322/oray username only")
 	flag.StringVar(&passwd, "passwd", "", "f3322/oray password only")
@@ -58,7 +59,7 @@ func init() {
 	flag.StringVar(&subdomain, "subdomain", "", "Sub domain")
 	flag.StringVar(&dnsType, "dnstype", "A", "dns type, AAAA/A")
 
-	flag.StringVar(&command, "command", "", "ip use command result")
+	flag.StringVar(&command, "command", "", "Use command's output as IP address")
 }
 
 func doDnspod() {
