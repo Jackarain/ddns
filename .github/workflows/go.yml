@@ -3,6 +3,8 @@
 
 name: Go
 
+on: [push]
+
 jobs:
 
   build:
