@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Jackarain/ddns/alidns"
 	"github.com/Jackarain/ddns/dnspod"
 	"github.com/Jackarain/ddns/dnsutils"
 	"github.com/Jackarain/ddns/f3322"
@@ -23,6 +24,7 @@ var (
 	useOray     bool
 	useNamesilo bool
 	useHenet    bool
+	useAlidns   bool
 
 	token  string
 	user   string
@@ -44,6 +46,7 @@ func init() {
 	flag.BoolVar(&useOray, "oray", false, "Use oray api")
 	flag.BoolVar(&useNamesilo, "namesilo", false, "Use namesilo api")
 	flag.BoolVar(&useHenet, "henet", false, "Use henet api")
+	flag.BoolVar(&useAlidns, "ali", false, "Use alidns api")
 
 	flag.StringVar(&dnsutils.FetchIPv4AddrUrl, "externalIPv4", "", "Provide a URL to get the external IPv4 address")
 	flag.StringVar(&dnsutils.FetchIPv6AddrUrl, "externalIPv6", "", "Provide a URL to get the external IPv6 address")
@@ -51,9 +54,9 @@ func init() {
 	// token 用于 dnspod, godaddy, namesilo, henet api
 	flag.StringVar(&token, "token", "", "godaddy api-key:secret-key, dnspod token, namesilo api-key:secret-key, henet password")
 
-	// user, passwd 用于 f3322/oray api
-	flag.StringVar(&user, "user", "", "f3322/oray username only")
-	flag.StringVar(&passwd, "passwd", "", "f3322/oray password only")
+	// user, passwd 用于 f3322/oray/ali api
+	flag.StringVar(&user, "user", "", "f3322/oray/ali username only")
+	flag.StringVar(&passwd, "passwd", "", "f3322/oray/ali password only")
 
 	flag.StringVar(&domain, "domain", "", "Main domain")
 	flag.StringVar(&subdomain, "subdomain", "", "Sub domain")
@@ -194,6 +197,23 @@ func doOray() {
 	}
 }
 
+func doAlidns() {
+	var extIP string
+	if command != "" {
+		extIP = dnsutils.DoCommand(command)
+		fmt.Println(extIP)
+	}
+
+	alidns.User = user
+	alidns.Passwd = passwd
+
+	if dnsType == "A" {
+		alidns.DoAlidnsV4(domain, subdomain, token, extIP)
+	} else if dnsType == "AAAA" {
+		henet.DoHenetv6(domain, subdomain, token, extIP)
+	}
+}
+
 func main() {
 	flag.Parse()
 	if help || len(os.Args) == 1 {
@@ -213,6 +233,8 @@ func main() {
 		doNamesilo()
 	} else if useHenet { // henet api
 		doHenet()
+	} else if useAlidns { // alidns api
+		doAlidns()
 	} else {
 		fmt.Println("No api selected")
 	}
