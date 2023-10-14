@@ -5,7 +5,7 @@
 中文 | [English](README_EN.md)
 \
 \
-一个用于动态更新 `IP` 到域名配置的工具，支持 `dnspod`、`f3322`、`oray`、`godaddy`、`namesilo`、`he.net` 平台.
+一个用于动态更新 `IP` 到域名配置的工具，支持 `dnspod`、`f3322`、`oray`、`godaddy`、`namesilo`、`he.net`、`alidns` 平台.
 
 ## 环境准备
 
