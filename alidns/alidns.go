@@ -34,24 +34,6 @@ func registerToAlidns(domain, subdomain, rid, ip string) error {
 	}
 
 	return nil
-
-	/*
-		var sb = alidns.Record
-
-		request := alidns.CreateUpdateDomainRecordRequest()
-		request.Scheme = "https"
-		request.RecordId = rid
-		request.RR = subDomain.RR
-		request.Type = subDomain.Type
-		request.Value = subDomain.Value
-		request.TTL = requests.NewInteger64(subDomain.TTL)
-
-		_, err = client.UpdateDomainRecord(request)
-		if err != nil {
-			log.Print("UpdateDomainRecord:", err)
-			return err
-		}
-	*/
 }
 
 // DoAlidnsV4 ...
