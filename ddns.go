@@ -210,7 +210,7 @@ func doAlidns() {
 	if dnsType == "A" {
 		alidns.DoAlidnsV4(domain, subdomain, token, extIP)
 	} else if dnsType == "AAAA" {
-		henet.DoHenetv6(domain, subdomain, token, extIP)
+		alidns.DoAlidnsV6(domain, subdomain, token, extIP)
 	}
 }
 
