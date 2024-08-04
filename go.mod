@@ -3,6 +3,7 @@ module github.com/Jackarain/ddns
 go 1.14
 
 require (
+	github.com/HdrHistogram/hdrhistogram-go v1.1.2 // indirect
 	github.com/aliyun/alibaba-cloud-sdk-go v1.62.405
 	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394
 	github.com/saintfish/chardet v0.0.0-20120816061221-3af4cd4741ca
