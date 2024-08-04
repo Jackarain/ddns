@@ -64,6 +64,15 @@ func BasicAuth(username, password string) string {
 	return base64.StdEncoding.EncodeToString([]byte(auth))
 }
 
+// ParseToken ...
+func ParseToken(token string) (string, string) {
+	tokens := strings.Split(token, ":")
+	if len(tokens) != 2 {
+		return "", ""
+	}
+	return tokens[0], tokens[1]
+}
+
 // ExternalIPv6 ...
 func ExternalIPv6() (string, error) {
 	dialer := &net.Dialer{
