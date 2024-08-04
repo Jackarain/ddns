@@ -140,3 +140,28 @@ func DoAlidnsV4(domain, subdomain, rid, extIP string) {
 	// 重写ip缓存文件.
 	dnsutils.FileWriteString("ipv4address", ipv4)
 }
+
+// FetchRecordID ...
+func FetchRecordID(domain string) (string, error) {
+	client, err := alidns.NewClientWithAccessKey("cn-hangzhou", User, Passwd)
+	if err != nil {
+		return "", err
+	}
+
+	req := alidns.CreateDescribeDomainRecordsRequest()
+	req.Scheme = "https"
+	req.DomainName = domain
+
+	resp, err := client.DescribeDomainRecords(req)
+	if err != nil {
+		return "", err
+	}
+
+	for _, record := range resp.DomainRecords.Record {
+		if record.RR == "@" {
+			return record.RecordId, nil
+		}
+	}
+
+	return "", fmt.Errorf("record id not found")
+}
