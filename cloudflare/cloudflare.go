@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/Jackarain/ddns/dnsutils"
@@ -220,5 +219,5 @@ func FetchRecordID(zone_id, token, domain string) (string, error) {
 		}
 	}
 
-	return "", errors.New(strconv.FormatBool(result.Success))
+	return "", errors.New(string(body))
 }

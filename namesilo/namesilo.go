@@ -28,43 +28,6 @@ type Namesilo struct {
 	Reply NamesiloReply `xml:"reply"`
 }
 
-// FetchRecordID ...
-func FetchRecordID(token, domain, subdomain string) (string, error) {
-	Url := fmt.Sprintf("https://www.namesilo.com/api/dnsListRecords?version=1&type=xml&key=%s&domain=%s", token, domain)
-
-	request, err := http.NewRequest("GET", Url, nil)
-	if err != nil {
-		fmt.Println("error: ", err.Error())
-		return "", err
-	}
-
-	namesiloClient := &http.Client{}
-	res, err := namesiloClient.Do(request)
-	if err != nil {
-		fmt.Println("error: ", err.Error())
-		return "", err
-	}
-	defer res.Body.Close()
-
-	body, _ := ioutil.ReadAll(res.Body)
-
-	var namesilo Namesilo
-	err = xml.Unmarshal(body, &namesilo)
-	if err != nil {
-		fmt.Println("XML unmarshal error:", err)
-		return "", err
-	}
-
-	hostname := subdomain + "." + domain
-	for _, element := range namesilo.Reply.ResourceRecords {
-		if element.Host == hostname {
-			return element.RecordId, nil
-		}
-	}
-
-	return "", errors.New("not found record id")
-}
-
 func registerIP(domain, subdomain, token, rid, extIP string) error {
 	namesiloURL := fmt.Sprintf("https://www.namesilo.com/api/dnsUpdateRecord?version=1&type=xml&key=%s&domain=%s&rrid=%s&rrhost=%s&rrvalue=%s",
 		token, domain, rid, subdomain, extIP)
@@ -191,4 +154,41 @@ func DoNamesiloV4(domain, subdomain, token, rid, extIP string) {
 
 	// 重写ip缓存文件.
 	dnsutils.FileWriteString("ipv4address", ipv4)
+}
+
+// FetchRecordID ...
+func FetchRecordID(token, domain, subdomain string) (string, error) {
+	Url := fmt.Sprintf("https://www.namesilo.com/api/dnsListRecords?version=1&type=xml&key=%s&domain=%s", token, domain)
+
+	request, err := http.NewRequest("GET", Url, nil)
+	if err != nil {
+		fmt.Println("error: ", err.Error())
+		return "", err
+	}
+
+	namesiloClient := &http.Client{}
+	res, err := namesiloClient.Do(request)
+	if err != nil {
+		fmt.Println("error: ", err.Error())
+		return "", err
+	}
+	defer res.Body.Close()
+
+	body, _ := ioutil.ReadAll(res.Body)
+
+	var namesilo Namesilo
+	err = xml.Unmarshal(body, &namesilo)
+	if err != nil {
+		fmt.Println("XML unmarshal error:", err)
+		return "", err
+	}
+
+	hostname := subdomain + "." + domain
+	for _, element := range namesilo.Reply.ResourceRecords {
+		if element.Host == hostname {
+			return element.RecordId, nil
+		}
+	}
+
+	return "", errors.New(string(body))
 }
