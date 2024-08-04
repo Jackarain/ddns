@@ -5,7 +5,7 @@
 中文 | [English](README_EN.md)
 \
 \
-一个用于动态更新 `IP` 到域名配置的工具，支持 `dnspod`、`f3322`、`oray`、`godaddy`、`namesilo`、`he.net`、`alidns` 平台.
+一个用于动态更新 `IP` 到域名配置的工具，支持 `dnspod`、`f3322`、`oray`、`godaddy`、`namesilo`、`he.net`、`alidns`、`cloudflare` 平台.
 
 ## 环境准备
 
@@ -87,6 +87,14 @@ systemctl enable ddns.timer
 ```
 
 在这个示例中，`token` 是由 `"API_KEY:API_SECRET"` 组成的字符串，域名为：`test.example.com`。
+
+`cloudflare` 使用示例
+
+```bash
+/path/to/ddns --cloudflare --domain example.com --subdomain test --dnstype AAAA --token "1111111:123123123"
+```
+
+在这个示例中，`token` 是由 `"zone_id:api-token"` 组成的字符串, 即: 区域ID和API令牌，域名为：`test.example.com`。
 
 `dnspod` 使用示例
 
