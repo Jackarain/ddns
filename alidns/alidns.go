@@ -1,12 +1,21 @@
 package alidns
 
 import (
+	"crypto/hmac"
+	"crypto/sha1"
+	"encoding/base64"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"net/url"
 	"os"
+	"sort"
 	"strings"
+	"time"
 
 	"github.com/Jackarain/ddns/dnsutils"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
 )
 
 var (
@@ -14,29 +23,86 @@ var (
 	Passwd string
 )
 
-// registerToAlidns ...
-func registerToAlidns(domain, subdomain, rid, ip, tp string) error {
-	client, err := alidns.NewClientWithAccessKey("cn-hangzhou", User, Passwd)
-	if err != nil {
-		return err
+// generateSignature generates a signature for the API request
+func generateSignature(params map[string]string, secret string) string {
+	// Step 1: Sort the parameters
+	var keys []string
+	for k := range params {
+		keys = append(keys, k)
 	}
+	sort.Strings(keys)
 
-	req := alidns.CreateUpdateDomainRecordRequest()
-	req.Scheme = "https"
-	req.RecordId = rid
-	req.Type = tp
-	req.Value = ip
-	req.TTL = "600"
-
-	_, err = client.UpdateDomainRecord(req)
-	if err != nil {
-		return err
+	// Step 2: Concatenate the parameters
+	var sortedParams string
+	for _, k := range keys {
+		sortedParams += "&" + specialURLEncode(k) + "=" + specialURLEncode(params[k])
 	}
+	stringToSign := "GET&%2F&" + specialURLEncode(sortedParams[1:])
 
-	return nil
+	// Step 3: Calculate HMAC SHA1
+	h := hmac.New(sha1.New, []byte(secret+"&"))
+	h.Write([]byte(stringToSign))
+
+	// Step 4: Base64 encode the result
+	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }
 
-// DoAlidnsV6 ...
+// specialURLEncode encodes a string for URL, following specific rules
+func specialURLEncode(value string) string {
+	encoded := url.QueryEscape(value)
+	encoded = strings.ReplaceAll(encoded, "+", "%20")
+	encoded = strings.ReplaceAll(encoded, "*", "%2A")
+	encoded = strings.ReplaceAll(encoded, "%7E", "~")
+	return encoded
+}
+
+// sendRequest sends a GET request to the API and returns the response body
+func sendRequest(params map[string]string) ([]byte, error) {
+	// Add common parameters
+	params["Format"] = "JSON"
+	params["Version"] = "2015-01-09"
+	params["AccessKeyId"] = User
+	params["SignatureMethod"] = "HMAC-SHA1"
+	params["Timestamp"] = time.Now().UTC().Format("2006-01-02T15:04:05Z")
+	params["SignatureVersion"] = "1.0"
+	params["SignatureNonce"] = fmt.Sprintf("%d", time.Now().UnixNano())
+
+	// Generate the signature
+	params["Signature"] = generateSignature(params, Passwd)
+
+	// Construct the URL
+	var query string
+	for k, v := range params {
+		query += "&" + k + "=" + v
+	}
+	url := "https://alidns.aliyuncs.com/?" + query[1:]
+
+	// Send the request
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return ioutil.ReadAll(resp.Body)
+}
+
+// registerToAlidns updates a DNS record in AliDNS
+func registerToAlidns(domain, subdomain, rid, ip, tp string) error {
+	params := map[string]string{
+		"Action":   "UpdateDomainRecord",
+		"RecordId": rid,
+		"RR":       subdomain,
+		"Type":     tp,
+		"Value":    ip,
+		"TTL":      "600",
+	}
+
+	_, err := sendRequest(params)
+	return err
+}
+
+// DoAlidnsV6 handles IPv6 DNS updates
 func DoAlidnsV6(domain, subdomain, passwd, extIP string) {
 	var ipv6 string
 	if extIP == "" {
@@ -58,17 +124,12 @@ func DoAlidnsV6(domain, subdomain, passwd, extIP string) {
 
 	var storeIP string
 
-	// 如果能打开ipaddress, 则读取ipaddress中的ip
-	// 与获取的公网ip对比, 如果没有改变, 则退出,
-	// 否则向godaddy等域名服务注册修改ip, 并保存ip
-	// 到文件 ipaddress 中.
 	f, err := os.Open("ipv6address")
 	if err == nil {
 		buf := make([]byte, 1024)
 		f.Read(buf)
 		f.Close()
 
-		// 获取ip字符串.
 		storeIP = strings.TrimRight(string(buf), string(rune(0)))
 	}
 
@@ -84,11 +145,10 @@ func DoAlidnsV6(domain, subdomain, passwd, extIP string) {
 		return
 	}
 
-	// 重写ip缓存文件.
 	dnsutils.FileWriteString("ipv6address", ipv6)
 }
 
-// DoAlidnsV4 ...
+// DoAlidnsV4 handles IPv4 DNS updates
 func DoAlidnsV4(domain, subdomain, rid, extIP string) {
 
 	var ipv4 string
@@ -111,17 +171,12 @@ func DoAlidnsV4(domain, subdomain, rid, extIP string) {
 
 	var storeIP string
 
-	// 如果能打开ipaddress, 则读取ipaddress中的ip
-	// 与获取的公网ip对比, 如果没有改变, 则退出,
-	// 否则向域名服务注册修改ip, 并保存ip
-	// 到文件 ipaddress 中.
 	f, err := os.Open("ipv4address")
 	if err == nil {
 		buf := make([]byte, 1024)
 		f.Read(buf)
 		f.Close()
 
-		// 获取ip字符串.
 		storeIP = strings.TrimRight(string(buf), string(rune(0)))
 	}
 
@@ -137,31 +192,79 @@ func DoAlidnsV4(domain, subdomain, rid, extIP string) {
 		return
 	}
 
-	// 重写ip缓存文件.
 	dnsutils.FileWriteString("ipv4address", ipv4)
 }
 
-// FetchRecordID ...
+// FetchRecordID fetches the record ID for a domain
 func FetchRecordID(domain string) (string, error) {
-	client, err := alidns.NewClientWithAccessKey("cn-hangzhou", User, Passwd)
+	params := map[string]string{
+		"Action":     "DescribeDomainRecords",
+		"DomainName": domain,
+	}
+
+	respBody, err := sendRequest(params)
 	if err != nil {
 		return "", err
 	}
 
-	req := alidns.CreateDescribeDomainRecordsRequest()
-	req.Scheme = "https"
-	req.DomainName = domain
+	return parseRecordID(respBody)
+}
 
-	resp, err := client.DescribeDomainRecords(req)
-	if err != nil {
+// parseRecordID extracts the Record ID from the JSON response
+func parseRecordID(respBody []byte) (string, error) {
+	// JSON 内容参考：
+	// {
+	//   "TotalCount": 2,
+	//   "PageSize": 20,
+	//   "RequestId": "536E9CAD-DB30-4647-AC87-AA5CC38C5382",
+	//   "DomainRecords": {
+	//     "Record": [
+	//       {
+	//         "Status": "Enable",
+	//         "Type": "MX",
+	//         "Remark": "备注",
+	//         "TTL": 600,
+	//         "RecordId": "9999985",
+	//         "Priority": 5,
+	//         "RR": "www",
+	//         "DomainName": "example.com",
+	//         "Weight": 2,
+	//         "Value": "mail1.hichina.com",
+	//         "Line": "default",
+	//         "Locked": false,
+	//         "CreateTimestamp": 1666501957000,
+	//         "UpdateTimestamp": 1676872961000
+	//       }
+	//     ]
+	//   },
+	//   "PageNumber": 1
+	// }
+
+	// 定义一个结构来解析 JSON
+	type Record struct {
+		RecordId string `json:"RecordId"`
+	}
+
+	type DomainRecords struct {
+		Record []Record `json:"Record"`
+	}
+
+	type Response struct {
+		DomainRecords DomainRecords `json:"DomainRecords"`
+	}
+
+	var resp Response
+
+	// 解析 JSON
+	if err := json.Unmarshal(respBody, &resp); err != nil {
 		return "", err
 	}
 
-	for _, record := range resp.DomainRecords.Record {
-		if record.RR == "@" {
-			return record.RecordId, nil
-		}
+	// 检查是否有 Record
+	if len(resp.DomainRecords.Record) == 0 {
+		return "", errors.New("no records found")
 	}
 
-	return "", fmt.Errorf("record id not found")
+	// 返回第一个 Record 的 Record ID
+	return resp.DomainRecords.Record[0].RecordId, nil
 }
