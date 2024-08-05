@@ -55,7 +55,7 @@ func init() {
 	flag.StringVar(&dnsutils.FetchIPv6AddrUrl, "externalIPv6", "", "Provide a URL to get the external IPv6 address")
 
 	// token 用于 dnspod, godaddy, namesilo, cloudflare, henet api
-	flag.StringVar(&token, "token", "", "godaddy api-key:secret-key, dnspod token, namesilo api-key:secret-key, cloudflare zone_id:api-key, henet password")
+	flag.StringVar(&token, "token", "", "godaddy api-key:secret-key, dnspod token, namesilo api-key:secret-key, cloudflare api-token, henet password")
 
 	// user, passwd 用于 f3322/oray/ali api
 	flag.StringVar(&user, "user", "", "f3322/oray/ali username only")
@@ -263,15 +263,25 @@ func doCloudFlare() {
 		return
 	}
 
+	// 首先从文件中读取 zone_id, 并缓存到本地文件.
+	zoneIDFileName := subdomain + "zone_id"
+	zone_id, err := dnsutils.FileReadString(zoneIDFileName)
+	if err != nil || zone_id == "" {
+		zone_id, err = cloudflare.FetchZoneID(domain, token)
+		if err != nil {
+			fmt.Println("FetchZoneID: " + err.Error())
+			return
+		}
+
+		dnsutils.FileWriteString(zoneIDFileName, zone_id)
+	}
+
 	// 如果指定了command, 则使用command的输出内容作为公网ip
 	var extIP string
 	if command != "" {
 		extIP = dnsutils.DoCommand(command)
 		fmt.Println(extIP)
 	}
-
-	// 从token中获取zone_id和api-key，格式为zone_id:api-key
-	zone_id, api_key := dnsutils.ParseToken(token)
 
 	if len(subdomain) > 0 && len(domain) > 0 {
 		domain = subdomain + "." + domain
@@ -281,7 +291,7 @@ func doCloudFlare() {
 	ridFileName := subdomain + dnsType
 	rid, err := dnsutils.FileReadString(ridFileName)
 	if err != nil || rid == "" {
-		rid, err = cloudflare.FetchRecordID(zone_id, api_key, domain)
+		rid, err = cloudflare.FetchRecordID(zone_id, token, domain)
 		if err != nil {
 			fmt.Println("FetchRecordID: " + err.Error())
 			return
@@ -292,9 +302,9 @@ func doCloudFlare() {
 
 	// 根据dnsType选择更新A记录或AAAA记录
 	if dnsType == "A" {
-		cloudflare.DoCFv4(domain, api_key, zone_id, rid, extIP)
+		cloudflare.DoCFv4(domain, token, zone_id, rid, extIP)
 	} else if dnsType == "AAAA" {
-		cloudflare.DoCFv6(domain, api_key, zone_id, rid, extIP)
+		cloudflare.DoCFv6(domain, token, zone_id, rid, extIP)
 	}
 }
 

@@ -183,6 +183,46 @@ type cfResult struct {
 	Records []cfRecordResult `json:"result"`
 }
 
+// GetZoneID ...
+func FetchZoneID(domain, token string) (string, error) {
+	Url := "https://api.cloudflare.com/client/v4/zones?name=" + domain
+
+	req, err := http.NewRequest("GET", Url, nil)
+	if err != nil {
+		return "", err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return "", err
+	}
+
+	var result map[string]interface{}
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return "", err
+	}
+
+	if result["success"] == false {
+		return "", errors.New(string(body))
+	}
+
+	// 获取zone_id.
+	zone_id := result["result"].([]interface{})[0].(map[string]interface{})["id"].(string)
+
+	return zone_id, nil
+}
+
 // FetchRecordID ...
 func FetchRecordID(zone_id, token, domain string) (string, error) {
 	URL := "https://api.cloudflare.com/client/v4/zones/" + zone_id + "/dns_records"
