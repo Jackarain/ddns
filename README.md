@@ -91,10 +91,10 @@ systemctl enable ddns.timer
 `cloudflare` 使用示例
 
 ```bash
-/path/to/ddns --cloudflare --domain example.com --subdomain test --dnstype AAAA --token "1111111:123123123"
+/path/to/ddns --cloudflare --domain example.com --subdomain test --dnstype AAAA --token "123123123"
 ```
 
-在这个示例中，`token` 是由 `"zone_id:api-token"` 组成的字符串, 即: 区域ID和API令牌，域名为：`test.example.com`。
+在这个示例中，`token` 是 `"api-token"` 字符串, 域名为：`test.example.com`。
 
 `dnspod` 使用示例
 
