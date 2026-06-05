@@ -10,6 +10,7 @@ import (
 	"github.com/Jackarain/ddns/dnspod"
 	"github.com/Jackarain/ddns/dnsutils"
 	"github.com/Jackarain/ddns/f3322"
+	"github.com/Jackarain/ddns/freedns"
 	"github.com/Jackarain/ddns/godaddy"
 	"github.com/Jackarain/ddns/henet"
 	"github.com/Jackarain/ddns/namesilo"
@@ -27,6 +28,7 @@ var (
 	useHenet      bool
 	useAlidns     bool
 	useCloudFlare bool
+	useFreeDNS    bool
 
 	token  string
 	user   string
@@ -50,12 +52,13 @@ func init() {
 	flag.BoolVar(&useHenet, "henet", false, "Use henet api")
 	flag.BoolVar(&useAlidns, "ali", false, "Use alidns api")
 	flag.BoolVar(&useCloudFlare, "cloudflare", false, "Use cloudflare api")
+	flag.BoolVar(&useFreeDNS, "freedns", false, "Use freedns api")
 
 	flag.StringVar(&dnsutils.FetchIPv4AddrUrl, "externalIPv4", "", "Provide a URL to get the external IPv4 address")
 	flag.StringVar(&dnsutils.FetchIPv6AddrUrl, "externalIPv6", "", "Provide a URL to get the external IPv6 address")
 
-	// token 用于 dnspod, godaddy, namesilo, cloudflare, henet api
-	flag.StringVar(&token, "token", "", "godaddy api-key:secret-key, dnspod token, namesilo api-key:secret-key, cloudflare api-token, henet password")
+	// token 用于 dnspod, godaddy, namesilo, cloudflare, henet, freedns api
+	flag.StringVar(&token, "token", "", "godaddy api-key:secret-key, dnspod token, namesilo api-key:secret-key, cloudflare api-token, henet password, freedns token")
 
 	// user, passwd 用于 f3322/oray/ali api
 	flag.StringVar(&user, "user", "", "f3322/oray/ali username only")
@@ -263,6 +266,26 @@ func doAlidns() {
 	}
 }
 
+func doFreeDNS() {
+	if len(token) == 0 || len(dnsType) == 0 {
+		fmt.Println("freedns token/dnstype required")
+		return
+	}
+
+	var extIP string
+	if command != "" {
+		extIP = dnsutils.DoCommand(command)
+		fmt.Println(extIP)
+	}
+
+	switch dnsType {
+	case "A":
+		freedns.DoFreeDNSv4(token, extIP)
+	case "AAAA":
+		freedns.DoFreeDNSv6(token, extIP)
+	}
+}
+
 func doCloudFlare() {
 	if len(domain) == 0 || len(subdomain) == 0 || len(token) == 0 || len(dnsType) == 0 {
 		fmt.Println("cloudflare domain/subdomain/token/dnstype required")
@@ -338,6 +361,8 @@ func main() {
 		doAlidns()
 	} else if useCloudFlare { // cloudflare api
 		doCloudFlare()
+	} else if useFreeDNS { // freedns api
+		doFreeDNS()
 	} else {
 		fmt.Println("No api selected")
 	}
