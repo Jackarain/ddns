@@ -93,9 +93,10 @@ func doDnspod() {
 	}
 
 	fmt.Println(subdomain, "dnspod record id:", rid)
-	if dnsType == "A" {
+	switch dnsType {
+	case "A":
 		dnspod.DoDNSPODv4(domain, subdomain, token, rid, extIP)
-	} else if dnsType == "AAAA" {
+	case "AAAA":
 		dnspod.DoDNSPODv6(domain, subdomain, token, rid, extIP)
 	}
 }
@@ -112,9 +113,10 @@ func doGodaddy() {
 		fmt.Println(extIP)
 	}
 
-	if dnsType == "A" {
+	switch dnsType {
+	case "A":
 		godaddy.DoGodaddyv4(domain, subdomain, token, extIP)
-	} else if dnsType == "AAAA" {
+	case "AAAA":
 		godaddy.DoGodaddyv6(domain, subdomain, token, extIP)
 	}
 }
@@ -134,13 +136,13 @@ func doF3322() {
 	f3322.User = user
 	f3322.Passwd = passwd
 
-	if dnsType == "A" {
+	switch dnsType {
+	case "A":
 		if len(subdomain) > 0 && len(domain) > 0 {
 			domain = subdomain + "." + domain
 		}
-
 		f3322.DoF3322v4(domain, extIP)
-	} else if dnsType == "AAAA" {
+	case "AAAA":
 		fmt.Println("f3322 doesn’t work with ipv6")
 	}
 }
@@ -171,9 +173,10 @@ func doNamesilo() {
 
 	fmt.Println(subdomain, "namesilo record id:", rid)
 
-	if dnsType == "A" {
+	switch dnsType {
+	case "A":
 		namesilo.DoNamesiloV4(domain, subdomain, token, rid, extIP)
-	} else if dnsType == "AAAA" {
+	case "AAAA":
 		namesilo.DoNamesiloV6(domain, subdomain, token, rid, extIP)
 	}
 }
@@ -190,9 +193,10 @@ func doHenet() {
 		fmt.Println(extIP)
 	}
 
-	if dnsType == "A" {
+	switch dnsType {
+	case "A":
 		henet.DoHenetv4(domain, subdomain, token, extIP)
-	} else if dnsType == "AAAA" {
+	case "AAAA":
 		henet.DoHenetv6(domain, subdomain, token, extIP)
 	}
 }
@@ -212,12 +216,13 @@ func doOray() {
 	oray.User = user
 	oray.Passwd = passwd
 
-	if dnsType == "A" {
+	switch dnsType {
+	case "A":
 		if len(subdomain) > 0 && len(domain) > 0 {
 			domain = subdomain + "." + domain
 		}
 		oray.DoOrayv4(domain, extIP)
-	} else if dnsType == "AAAA" {
+	case "AAAA":
 		fmt.Println("oray doesn’t work with ipv6")
 	}
 }
@@ -250,9 +255,10 @@ func doAlidns() {
 		dnsutils.FileWriteString(ridFileName, rid)
 	}
 
-	if dnsType == "A" {
+	switch dnsType {
+	case "A":
 		alidns.DoAlidnsV4(domain, subdomain, rid, extIP)
-	} else if dnsType == "AAAA" {
+	case "AAAA":
 		alidns.DoAlidnsV6(domain, subdomain, rid, extIP)
 	}
 }
@@ -301,9 +307,10 @@ func doCloudFlare() {
 	}
 
 	// 根据dnsType选择更新A记录或AAAA记录
-	if dnsType == "A" {
+	switch dnsType {
+	case "A":
 		cloudflare.DoCFv4(domain, token, zone_id, rid, extIP)
-	} else if dnsType == "AAAA" {
+	case "AAAA":
 		cloudflare.DoCFv6(domain, token, zone_id, rid, extIP)
 	}
 }
