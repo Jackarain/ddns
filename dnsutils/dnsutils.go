@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -152,29 +153,56 @@ func executeCommand(input string) ([]byte, error) {
 	return cmd.Output()
 }
 
+var (
+	ipv4Regex = regexp.MustCompile(`\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}`)
+	ipv6Regex = regexp.MustCompile(`[0-9a-fA-F:]{2,}`)
+)
+
+func extractIP(s string) string {
+	// 先搜索 IPv4 地址
+	for _, match := range ipv4Regex.FindAllString(s, -1) {
+		if IsIPv4(match) {
+			return match
+		}
+	}
+
+	// 再搜索 IPv6 地址（任意包含十六进制字符和冒号的连续序列）
+	for _, match := range ipv6Regex.FindAllString(s, -1) {
+		if IsIPv6(match) {
+			return match
+		}
+	}
+
+	return ""
+}
+
 func DoCommand(cmd string) string {
 	out, err := executeCommand(cmd)
 	if err != nil {
 		return ""
 	}
 
+	var s string
 	if !utf8.Valid(out) {
 		detector := chardet.NewTextDetector()
-		result, err := detector.DetectBest(out)
+		detected, err := detector.DetectBest(out)
 		var encoding string
 		if err == nil {
-			if result.Language == "zh" {
+			if detected.Language == "zh" {
 				encoding = "gbk"
 			} else {
-				encoding = result.Charset
+				encoding = detected.Charset
 			}
 		}
-		utf8 := convrtToUTF8(string(out), encoding)
+		utf8Str := convrtToUTF8(string(out), encoding)
 		if err != nil {
-			return strings.TrimSpace(string(out))
+			s = strings.TrimSpace(string(out))
+		} else {
+			s = strings.TrimSpace(string(utf8Str))
 		}
-		return strings.TrimSpace(string(utf8))
+	} else {
+		s = strings.TrimSpace(string(out))
 	}
 
-	return strings.TrimSpace(string(out))
+	return extractIP(s)
 }
