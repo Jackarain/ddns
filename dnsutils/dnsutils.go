@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"os"
@@ -39,7 +39,7 @@ func FileWriteString(name, ip string) {
 
 // FileReadString ...
 func FileReadString(name string) (string, error) {
-	content, err := ioutil.ReadFile(name)
+	content, err := os.ReadFile(name)
 	if err != nil {
 		return "", err
 	}
@@ -93,7 +93,7 @@ func ExternalIPv6() (string, error) {
 		return "", err
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
@@ -130,7 +130,7 @@ func ExternalIPv4() (string, error) {
 		return "", err
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
@@ -143,7 +143,7 @@ func convrtToUTF8(str string, origEncoding string) string {
 	strBytes := []byte(str)
 	byteReader := bytes.NewReader(strBytes)
 	reader, _ := charset.NewReaderLabel(origEncoding, byteReader)
-	strBytes, _ = ioutil.ReadAll(reader)
+	strBytes, _ = io.ReadAll(reader)
 	return string(strBytes)
 }
 

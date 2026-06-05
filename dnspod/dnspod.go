@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -32,7 +32,7 @@ func ipv6RegisterToDNSPOD(domain, subdomain, token, rid, ip string) error {
 	}
 	defer res.Body.Close()
 
-	body, _ := ioutil.ReadAll(res.Body)
+	body, _ := io.ReadAll(res.Body)
 	fmt.Println(string(body))
 
 	return err
@@ -57,7 +57,7 @@ func ipv4RegisterToDNSPOD(domain, subdomain, token, rid, ip string) error {
 	}
 	defer res.Body.Close()
 
-	body, _ := ioutil.ReadAll(res.Body)
+	body, _ := io.ReadAll(res.Body)
 	fmt.Println(string(body))
 
 	return err
@@ -203,7 +203,7 @@ func FetchRecordID(token, domain, subdomain, domainType string) (string, error) 
 	}
 	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return "", err
 	}

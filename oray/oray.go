@@ -2,7 +2,7 @@ package oray
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -37,7 +37,7 @@ func registerToOray(domain, ip string) error {
 	}
 	defer res.Body.Close()
 
-	body, _ := ioutil.ReadAll(res.Body)
+	body, _ := io.ReadAll(res.Body)
 	fmt.Println(string(body))
 
 	return err

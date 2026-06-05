@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -32,7 +32,7 @@ func ipv6RegisterToCF(domain, token, zone_id, rid, ip string) error {
 	}
 	defer res.Body.Close()
 
-	body, _ := ioutil.ReadAll(res.Body)
+	body, _ := io.ReadAll(res.Body)
 	fmt.Println(string(body))
 
 	return err
@@ -58,7 +58,7 @@ func ipv4RegisterToCF(domain, token, zone_id, rid, ip string) error {
 	}
 	defer res.Body.Close()
 
-	body, _ := ioutil.ReadAll(res.Body)
+	body, _ := io.ReadAll(res.Body)
 	fmt.Println(string(body))
 
 	return err
@@ -202,7 +202,7 @@ func FetchZoneID(domain, token string) (string, error) {
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return "", err
 	}
@@ -242,7 +242,7 @@ func FetchRecordID(zone_id, token, domain string) (string, error) {
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return "", err
 	}
