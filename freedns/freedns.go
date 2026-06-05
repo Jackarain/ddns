@@ -11,39 +11,15 @@ import (
 )
 
 // FreeDNS API:
-// 更新动态DNS记录(IPv4):
+// 更新动态DNS记录:
 //   https://sync.afraid.org/u/TOKEN/?myip=IP_ADDRESS
-// 更新动态DNS记录(IPv6):
-//   http://v6.sync.afraid.org/u/TOKEN/?myip=IP_ADDRESS
 // 响应:
 //   "Updated X.X.X.X"  - 成功更新
 //   "No change"        - IP未发生变化
 //   "ERROR: ..."       - 发生错误
 
-func registerToFreeDNSv4(token, ip string) error {
+func registerToFreeDNS(token, ip string) error {
 	url := "https://sync.afraid.org/u/" + token + "/?myip=" + ip
-
-	request, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return err
-	}
-
-	client := &http.Client{}
-	res, err := client.Do(request)
-	if err != nil {
-		fmt.Println("error: ", err.Error())
-		return err
-	}
-	defer res.Body.Close()
-
-	body, _ := io.ReadAll(res.Body)
-	fmt.Println(string(body))
-
-	return err
-}
-
-func registerToFreeDNSv6(token, ip string) error {
-	url := "http://v6.sync.afraid.org/u/" + token + "/?myip=" + ip
 
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -101,7 +77,7 @@ func DoFreeDNSv4(token, extIP string) {
 		return
 	}
 
-	err = registerToFreeDNSv4(token, ipv4)
+	err = registerToFreeDNS(token, ipv4)
 	if err != nil {
 		fmt.Println("register to freedns error: ", err)
 		return
@@ -147,7 +123,7 @@ func DoFreeDNSv6(token, extIP string) {
 		return
 	}
 
-	err = registerToFreeDNSv6(token, ipv6)
+	err = registerToFreeDNS(token, ipv6)
 	if err != nil {
 		fmt.Println("register to freedns error: ", err)
 		return
