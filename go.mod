@@ -1,12 +1,11 @@
 module github.com/Jackarain/ddns
 
-go 1.14
+go 1.25.0
 
 require (
-	github.com/HdrHistogram/hdrhistogram-go v1.1.2 // indirect
-	github.com/aliyun/alibaba-cloud-sdk-go v1.62.405
 	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394
-	github.com/saintfish/chardet v0.0.0-20120816061221-3af4cd4741ca
-	golang.org/x/net v0.0.0-20200602114024-627f9648deb9
-	golang.org/x/text v0.3.3 // indirect
+	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d
+	golang.org/x/net v0.55.0
 )
+
+require golang.org/x/text v0.37.0 // indirect
