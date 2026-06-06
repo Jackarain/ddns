@@ -5,7 +5,9 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Jackarain/ddns/alidns"
 	"github.com/Jackarain/ddns/cloudflare"
@@ -42,6 +44,7 @@ var (
 
 	command    string
 	configFile string
+	interval   string
 )
 
 func init() {
@@ -74,6 +77,8 @@ func init() {
 	flag.StringVar(&command, "command", "", "Use command's output as IP address")
 
 	flag.StringVar(&configFile, "config", "", "Path to config file")
+
+	flag.StringVar(&interval, "interval", "", "Interval for timed DDNS updates, e.g. 300 (seconds), 5m, 2h, 1d")
 }
 
 func doDnspod() {
@@ -431,11 +436,73 @@ func loadConfig(path string) error {
 			dnsType = value
 		case "command":
 			command = value
+		case "interval":
+			interval = value
 		default:
 			fmt.Printf("config: unknown key %q at line %d, ignored\n", key, lineNo)
 		}
 	}
 	return scanner.Err()
+}
+
+// parseInterval 解析时间间隔字符串，返回对应的 time.Duration。
+// 支持格式：纯数字（秒）、数字+m（分钟）、数字+h（小时）、数字+d（天）。
+func parseInterval(s string) (time.Duration, error) {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return 0, fmt.Errorf("empty interval")
+	}
+
+	var multiplier int64 = 1
+	var numStr string
+
+	if strings.HasSuffix(s, "d") {
+		multiplier = 86400
+		numStr = s[:len(s)-1]
+	} else if strings.HasSuffix(s, "h") {
+		multiplier = 3600
+		numStr = s[:len(s)-1]
+	} else if strings.HasSuffix(s, "m") {
+		multiplier = 60
+		numStr = s[:len(s)-1]
+	} else {
+		numStr = s
+	}
+
+	n, err := strconv.ParseInt(numStr, 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("invalid interval %q: %v", s, err)
+	}
+
+	if n <= 0 {
+		return 0, fmt.Errorf("interval must be positive, got %d", n)
+	}
+
+	return time.Duration(n*multiplier) * time.Second, nil
+}
+
+func doSelectedProvider() {
+	if useDnspod { // dnspod api
+		doDnspod()
+	} else if useGodaddy { // godaddy api
+		doGodaddy()
+	} else if useF3322 { // f3322 api
+		doF3322()
+	} else if useOray { // oray api
+		doOray()
+	} else if useNamesilo { // namesilo api
+		doNamesilo()
+	} else if useHenet { // henet api
+		doHenet()
+	} else if useAlidns { // alidns api
+		doAlidns()
+	} else if useCloudFlare { // cloudflare api
+		doCloudFlare()
+	} else if useFreeDNS { // freedns api
+		doFreeDNS()
+	} else {
+		fmt.Println("No api selected")
+	}
 }
 
 func main() {
@@ -457,25 +524,20 @@ func main() {
 		}
 	}
 
-	if useDnspod { // dnspod api
-		doDnspod()
-	} else if useGodaddy { // godaddy api
-		doGodaddy()
-	} else if useF3322 { // f3322 api
-		doF3322()
-	} else if useOray { // oray api
-		doOray()
-	} else if useNamesilo { // namesilo api
-		doNamesilo()
-	} else if useHenet { // henet api
-		doHenet()
-	} else if useAlidns { // alidns api
-		doAlidns()
-	} else if useCloudFlare { // cloudflare api
-		doCloudFlare()
-	} else if useFreeDNS { // freedns api
-		doFreeDNS()
+	if interval != "" {
+		// 定时模式：按指定间隔循环调用
+		d, err := parseInterval(interval)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error parsing interval: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Starting timed DDNS updates every %s\n", d)
+		for {
+			doSelectedProvider()
+			time.Sleep(d)
+		}
 	} else {
-		fmt.Println("No api selected")
+		// 单次模式：执行一次后退出
+		doSelectedProvider()
 	}
 }
