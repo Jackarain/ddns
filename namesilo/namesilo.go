@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
@@ -175,7 +174,7 @@ func FetchRecordID(token, domain, subdomain string) (string, error) {
 	}
 	defer res.Body.Close()
 
-	body, _ := ioutil.ReadAll(res.Body)
+	body, _ := io.ReadAll(res.Body)
 
 	var namesilo Namesilo
 	err = xml.Unmarshal(body, &namesilo)
