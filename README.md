@@ -78,6 +78,9 @@ systemctl enable ddns.timer
 
 `ddns` 可以运行在路由器或 `NAS` 等设备上，这样就可以实现在路由器或 `NAS` 上实现动态更新 `IP` 到域名配置的功能
 
+> **提示**：`ddns` 支持 `--interval` 参数让程序自身按指定间隔循环执行，无需依赖 `crontab` 或 `systemd timer`。  
+> 例如 `--interval 5m` 表示每 5 分钟执行一次（支持 `m` 分钟、`h` 小时、`d` 天，纯数字表示秒）。
+
 ## 参数说明及使用示例
 
 `godaddy` 使用示例
@@ -133,6 +136,49 @@ systemctl enable ddns.timer
 ```
 
 默认情况下，`ddns` 请求 `ipify.org` 以获取公网 `ip`
+
+### 定时执行
+
+`--interval` 参数可以让程序自行定时循环，无需依赖 `crontab` 或 `systemd timer`：
+
+```bash
+# 每 5 分钟执行一次
+/path/to/ddns --dnspod --domain example.com --subdomain test --dnstype AAAA --token "1111111:123123123" --interval 5m
+
+# 每 2 小时执行一次
+/path/to/ddns --godaddy --domain example.com --subdomain test --dnstype A --token "1111111:123123123" --interval 2h
+
+# 每 300 秒执行一次（纯数字表示秒）
+/path/to/ddns --namesilo --domain example.com --subdomain test --dnstype AAAA --token "1111111123123123" --interval 300
+```
+
+### 使用配置文件
+
+通过 `--config` 参数可以指定配置文件，将参数统一写入文件便于管理。配置文件每行一个 `key=value`，参数名与命令行一致：
+
+创建配置文件 `ddns.conf`：
+
+```ini
+# DDNS 配置文件
+dnspod = true
+domain = example.com
+subdomain = test
+dnstype = AAAA
+token = 1111111:123123123
+interval = 5m
+```
+
+直接使用配置文件运行：
+
+```bash
+/path/to/ddns --config ddns.conf
+```
+
+也可以在配置文件基础上，通过命令行参数覆盖某些配置（命令行优先级更高）：
+
+```bash
+/path/to/ddns --config ddns.conf --dnstype A
+```
 
 ## 支持和反馈
 

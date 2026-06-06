@@ -76,6 +76,9 @@ In the above examples, the `ddns` program will run 5 minutes after booting and t
 
 `ddns` can run on devices like `routers` or `NAS`, thereby achieving dynamic updating of `IP` to domain name configurations on the `router` or `NAS`.
 
+> **Tip**: `ddns` supports the `--interval` option to run in a loop at a specified interval without needing `crontab` or `systemd timer`.  
+> For example, `--interval 5m` means run every 5 minutes (supports `m` minutes, `h` hours, `d` days; plain numbers mean seconds).
+
 ## Parameter Explanation and Usage Examples
 
 Here's how you might use the `godaddy` command:
@@ -119,6 +122,49 @@ Here's an example of how to obtain the public `ip` by sending a `curl` request t
 ```
 
 By default, `ddns` queries `ipify.org` to obtain the public `ip`.
+
+### Timed Execution
+
+The `--interval` option runs the program in a loop at a specified interval without relying on `crontab` or `systemd timer`:
+
+```bash
+# Run every 5 minutes
+/path/to/ddns --dnspod --domain example.com --subdomain test --dnstype AAAA --token "1111111:123123123" --interval 5m
+
+# Run every 2 hours
+/path/to/ddns --godaddy --domain example.com --subdomain test --dnstype A --token "1111111:123123123" --interval 2h
+
+# Run every 300 seconds (plain numbers mean seconds)
+/path/to/ddns --namesilo --domain example.com --subdomain test --dnstype AAAA --token "1111111123123123" --interval 300
+```
+
+### Using a Configuration File
+
+The `--config` option allows you to specify a configuration file, keeping all parameters in one place. Each line in the file is a `key=value` pair, using the same parameter names as the command line:
+
+Create a `ddns.conf` file:
+
+```ini
+# DDNS configuration file
+dnspod = true
+domain = example.com
+subdomain = test
+dnstype = AAAA
+token = 1111111:123123123
+interval = 5m
+```
+
+Run directly with the configuration file:
+
+```bash
+/path/to/ddns --config ddns.conf
+```
+
+You can also override specific settings from the configuration file with command-line arguments (CLI takes precedence):
+
+```bash
+/path/to/ddns --config ddns.conf --dnstype A
+```
 
 ## Support and Feedback
 
