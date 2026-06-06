@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/Jackarain/ddns/alidns"
 	"github.com/Jackarain/ddns/cloudflare"
@@ -38,7 +40,8 @@ var (
 	subdomain string
 	dnsType   string
 
-	command string
+	command    string
+	configFile string
 )
 
 func init() {
@@ -69,6 +72,8 @@ func init() {
 	flag.StringVar(&dnsType, "dnstype", "A", "dns type, AAAA/A")
 
 	flag.StringVar(&command, "command", "", "Use command's output as IP address")
+
+	flag.StringVar(&configFile, "config", "", "Path to config file")
 }
 
 func doDnspod() {
@@ -338,11 +343,118 @@ func doCloudFlare() {
 	}
 }
 
+// findConfig 从 os.Args 中查找 -config 参数，返回配置文件路径
+// 并从 os.Args 中移除 -config 及其值，避免影响后续 flag.Parse()
+func findConfig() string {
+	for i := 0; i < len(os.Args); i++ {
+		arg := os.Args[i]
+		if arg == "-config" || arg == "--config" {
+			if i+1 < len(os.Args) {
+				cfg := os.Args[i+1]
+				os.Args = append(os.Args[:i], os.Args[i+2:]...)
+				return cfg
+			}
+		}
+		if strings.HasPrefix(arg, "-config=") || strings.HasPrefix(arg, "--config=") {
+			cfg := strings.SplitN(arg, "=", 2)[1]
+			os.Args = append(os.Args[:i], os.Args[i+1:]...)
+			return cfg
+		}
+	}
+	return ""
+}
+
+// loadConfig 从配置文件中读取参数并设置对应的变量。
+// 配置文件每行一个参数，支持 # 开头的注释行，
+// 格式为 key=value（如 domain=example.com）或 key（布尔值设为 true）。
+// 参数名称与命令行参数名称一致（不需要前面的 - 前缀）。
+func loadConfig(path string) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	lineNo := 0
+	for scanner.Scan() {
+		lineNo++
+		line := strings.TrimSpace(scanner.Text())
+		// 跳过空行和注释行
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		var key, value string
+		if idx := strings.Index(line, "="); idx != -1 {
+			key = strings.TrimSpace(line[:idx])
+			value = strings.TrimSpace(line[idx+1:])
+		} else {
+			key = line
+			value = "true"
+		}
+
+		switch key {
+		case "godaddy":
+			useGodaddy = value == "true"
+		case "dnspod":
+			useDnspod = value == "true"
+		case "f3322":
+			useF3322 = value == "true"
+		case "oray":
+			useOray = value == "true"
+		case "namesilo":
+			useNamesilo = value == "true"
+		case "henet":
+			useHenet = value == "true"
+		case "ali":
+			useAlidns = value == "true"
+		case "cloudflare":
+			useCloudFlare = value == "true"
+		case "freedns":
+			useFreeDNS = value == "true"
+		case "externalIPv4":
+			dnsutils.FetchIPv4AddrUrl = value
+		case "externalIPv6":
+			dnsutils.FetchIPv6AddrUrl = value
+		case "token":
+			token = value
+		case "user":
+			user = value
+		case "passwd":
+			passwd = value
+		case "domain":
+			domain = value
+		case "subdomain":
+			subdomain = value
+		case "dnstype":
+			dnsType = value
+		case "command":
+			command = value
+		default:
+			fmt.Printf("config: unknown key %q at line %d, ignored\n", key, lineNo)
+		}
+	}
+	return scanner.Err()
+}
+
 func main() {
+	// 先查找并加载配置文件（如果指定了 -config）
+	if cfgPath := findConfig(); cfgPath != "" {
+		if err := loadConfig(cfgPath); err != nil {
+			fmt.Fprintf(os.Stderr, "Error loading config file %s: %v\n", cfgPath, err)
+			os.Exit(1)
+		}
+	}
+
 	flag.Parse()
 	if help || len(os.Args) == 1 {
-		flag.Usage()
-		return
+		// 如果是通过配置文件设置了参数，len(os.Args)==1 时仍然应该继续执行
+		if configFile == "" && !useGodaddy && !useDnspod && !useF3322 && !useOray &&
+			!useNamesilo && !useHenet && !useAlidns && !useCloudFlare && !useFreeDNS {
+			flag.Usage()
+			return
+		}
 	}
 
 	if useDnspod { // dnspod api
