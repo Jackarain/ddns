@@ -224,7 +224,7 @@ func FetchZoneID(domain, token string) (string, error) {
 }
 
 // FetchRecordID ...
-func FetchRecordID(zone_id, token, domain string) (string, error) {
+func FetchRecordID(zone_id, token, domain, dnsType string) (string, error) {
 	URL := "https://api.cloudflare.com/client/v4/zones/" + zone_id + "/dns_records"
 
 	req, err := http.NewRequest("GET", URL, nil)
@@ -254,7 +254,7 @@ func FetchRecordID(zone_id, token, domain string) (string, error) {
 	}
 
 	for _, element := range result.Records {
-		if element.Name == domain {
+		if element.Name == domain && element.Type == dnsType {
 			return element.ID, nil
 		}
 	}
