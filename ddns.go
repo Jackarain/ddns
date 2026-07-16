@@ -169,7 +169,7 @@ func doNamesilo() {
 	ridFileName := subdomain + dnsType
 	rid, err := dnsutils.FileReadString(ridFileName)
 	if err != nil || rid == "" {
-		rid, err = namesilo.FetchRecordID(token, domain, subdomain)
+		rid, err = namesilo.FetchRecordID(token, domain, subdomain, dnsType)
 		if err != nil {
 			fmt.Println("FetchRecordID: " + err.Error())
 			return
@@ -259,7 +259,7 @@ func doAlidns() {
 	ridFileName := subdomain + dnsType
 	rid, err := dnsutils.FileReadString(ridFileName)
 	if err != nil || rid == "" {
-		rid, err = alidns.FetchRecordID(domain)
+		rid, err = alidns.FetchRecordID(domain, dnsType)
 		if err != nil {
 			fmt.Println("FetchRecordID: " + err.Error())
 			return

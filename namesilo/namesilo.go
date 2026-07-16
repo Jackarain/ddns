@@ -157,7 +157,7 @@ func DoNamesiloV4(domain, subdomain, token, rid, extIP string) {
 }
 
 // FetchRecordID ...
-func FetchRecordID(token, domain, subdomain string) (string, error) {
+func FetchRecordID(token, domain, subdomain, dnsType string) (string, error) {
 	Url := fmt.Sprintf("https://www.namesilo.com/api/dnsListRecords?version=1&type=xml&key=%s&domain=%s", token, domain)
 
 	request, err := http.NewRequest("GET", Url, nil)

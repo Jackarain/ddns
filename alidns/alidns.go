@@ -196,7 +196,7 @@ func DoAlidnsV4(domain, subdomain, rid, extIP string) {
 }
 
 // FetchRecordID fetches the record ID for a domain
-func FetchRecordID(domain string) (string, error) {
+func FetchRecordID(domain, dnsType string) (string, error) {
 	params := map[string]string{
 		"Action":     "DescribeDomainRecords",
 		"DomainName": domain,
@@ -207,11 +207,11 @@ func FetchRecordID(domain string) (string, error) {
 		return "", err
 	}
 
-	return parseRecordID(respBody)
+	return parseRecordID(respBody, dnsType)
 }
 
 // parseRecordID extracts the Record ID from the JSON response
-func parseRecordID(respBody []byte) (string, error) {
+func parseRecordID(respBody []byte, dnsType string) (string, error) {
 	// JSON 内容参考：
 	// {
 	//   "TotalCount": 2,
@@ -243,6 +243,7 @@ func parseRecordID(respBody []byte) (string, error) {
 	// 定义一个结构来解析 JSON
 	type Record struct {
 		RecordId string `json:"RecordId"`
+		Type     string `json:"Type"`
 	}
 
 	type DomainRecords struct {
@@ -265,6 +266,12 @@ func parseRecordID(respBody []byte) (string, error) {
 		return "", errors.New("no records found")
 	}
 
-	// 返回第一个 Record 的 Record ID
-	return resp.DomainRecords.Record[0].RecordId, nil
+	// 遍历记录，找到 dnsType 匹配的记录
+	for _, record := range resp.DomainRecords.Record {
+		if record.Type == dnsType {
+			return record.RecordId, nil
+		}
+	}
+
+	return "", fmt.Errorf("no record found with type %s", dnsType)
 }
