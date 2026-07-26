@@ -108,7 +108,7 @@ func DoHenetv6(domain, subdomain, passwd, extIP string) {
 }
 
 // DoHenetv4 ...
-func DoHenetv4(domain, subdomain, ssoKey, extIP string) {
+func DoHenetv4(domain, subdomain, passwd, extIP string) {
 	var ipv4 string
 	if extIP == "" {
 		ip, err := dnsutils.ExternalIPv4()
@@ -149,7 +149,7 @@ func DoHenetv4(domain, subdomain, ssoKey, extIP string) {
 		return
 	}
 
-	err = registerToHenet(domain, subdomain, ssoKey, ipv4)
+	err = registerToHenet(domain, subdomain, passwd, ipv4)
 	if err != nil {
 		fmt.Println("register to he.net error: ", err)
 		return
