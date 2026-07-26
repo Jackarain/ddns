@@ -14,11 +14,22 @@ import (
 
 // ipv6RegisterToCF ...
 func ipv6RegisterToCF(domain, token, zone_id, rid, ip string) error {
-	Url := "https://api.cloudflare.com/client/v4/zones/" + zone_id + "/dns_records/" + rid
+	url := "https://api.cloudflare.com/client/v4/zones/" + zone_id + "/dns_records/" + rid
+
+	bodyMap := map[string]interface{}{
+		"type":    "AAAA",
+		"name":    domain,
+		"content": ip,
+		"ttl":     60,
+	}
+
+	bodyBytes, err := json.Marshal(bodyMap)
+	if err != nil {
+		return err
+	}
 
 	// 使用 PUT 方法更新记录.
-	req, err := http.NewRequest("PUT", Url,
-		strings.NewReader(`{"type":"AAAA","name":"`+domain+`","content":"`+ip+`","ttl":60}`))
+	req, err := http.NewRequest("PUT", url, strings.NewReader(string(bodyBytes)))
 	if err != nil {
 		return err
 	}
@@ -32,19 +43,47 @@ func ipv6RegisterToCF(domain, token, zone_id, rid, ip string) error {
 	}
 	defer res.Body.Close()
 
-	body, _ := io.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
 	fmt.Println(string(body))
 
-	return err
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
+		return fmt.Errorf("cloudflare API returned status %d: %s", res.StatusCode, string(body))
+	}
+
+	var result struct {
+		Success bool `json:"success"`
+	}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return err
+	}
+	if !result.Success {
+		return fmt.Errorf("cloudflare API error: %s", string(body))
+	}
+
+	return nil
 }
 
 // ipv4RegisterToCF ...
 func ipv4RegisterToCF(domain, token, zone_id, rid, ip string) error {
-	Url := "https://api.cloudflare.com/client/v4/zones/" + zone_id + "/dns_records/" + rid
+	url := "https://api.cloudflare.com/client/v4/zones/" + zone_id + "/dns_records/" + rid
+
+	bodyMap := map[string]interface{}{
+		"type":    "A",
+		"name":    domain,
+		"content": ip,
+		"ttl":     60,
+	}
+
+	bodyBytes, err := json.Marshal(bodyMap)
+	if err != nil {
+		return err
+	}
 
 	// 使用 PUT 方法更新记录.
-	req, err := http.NewRequest("PUT", Url,
-		strings.NewReader(`{"type":"A","name":"`+domain+`","content":"`+ip+`","ttl":60}`))
+	req, err := http.NewRequest("PUT", url, strings.NewReader(string(bodyBytes)))
 	if err != nil {
 		return err
 	}
@@ -58,10 +97,27 @@ func ipv4RegisterToCF(domain, token, zone_id, rid, ip string) error {
 	}
 	defer res.Body.Close()
 
-	body, _ := io.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
 	fmt.Println(string(body))
 
-	return err
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
+		return fmt.Errorf("cloudflare API returned status %d: %s", res.StatusCode, string(body))
+	}
+
+	var result struct {
+		Success bool `json:"success"`
+	}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return err
+	}
+	if !result.Success {
+		return fmt.Errorf("cloudflare API error: %s", string(body))
+	}
+
+	return nil
 }
 
 // DoCFv6 ...
@@ -183,11 +239,11 @@ type cfResult struct {
 	Records []cfRecordResult `json:"result"`
 }
 
-// GetZoneID ...
+// FetchZoneID ...
 func FetchZoneID(domain, token string) (string, error) {
-	Url := "https://api.cloudflare.com/client/v4/zones?name=" + domain
+	url := "https://api.cloudflare.com/client/v4/zones?name=" + domain
 
-	req, err := http.NewRequest("GET", Url, nil)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return "", err
 	}
@@ -207,20 +263,34 @@ func FetchZoneID(domain, token string) (string, error) {
 		return "", err
 	}
 
-	var result map[string]interface{}
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
+		return "", fmt.Errorf("cloudflare API returned status %d: %s", res.StatusCode, string(body))
+	}
+
+	var result struct {
+		Success bool                   `json:"success"`
+		Result  []map[string]interface{} `json:"result"`
+	}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return "", err
 	}
 
-	if result["success"] == false {
+	if !result.Success {
 		return "", errors.New(string(body))
 	}
 
-	// 获取zone_id.
-	zone_id := result["result"].([]interface{})[0].(map[string]interface{})["id"].(string)
+	if len(result.Result) == 0 {
+		return "", fmt.Errorf("zone not found for domain: %s", domain)
+	}
 
-	return zone_id, nil
+	// 获取zone_id.
+	zoneID, ok := result.Result[0]["id"].(string)
+	if !ok {
+		return "", fmt.Errorf("unable to parse zone_id from response: %s", string(body))
+	}
+
+	return zoneID, nil
 }
 
 // FetchRecordID ...
@@ -247,10 +317,18 @@ func FetchRecordID(zone_id, token, domain, dnsType string) (string, error) {
 		return "", err
 	}
 
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
+		return "", fmt.Errorf("cloudflare API returned status %d: %s", res.StatusCode, string(body))
+	}
+
 	var result cfResult
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return "", err
+	}
+
+	if !result.Success {
+		return "", fmt.Errorf("cloudflare API error: %s", string(body))
 	}
 
 	for _, element := range result.Records {
@@ -259,5 +337,5 @@ func FetchRecordID(zone_id, token, domain, dnsType string) (string, error) {
 		}
 	}
 
-	return "", errors.New(string(body))
+	return "", fmt.Errorf("DNS record not found: %s (%s) in zone %s", domain, dnsType, zone_id)
 }
