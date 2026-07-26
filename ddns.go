@@ -151,10 +151,11 @@ func doF3322() {
 
 	switch dnsType {
 	case "A":
+		f3322Domain := domain
 		if len(subdomain) > 0 && len(domain) > 0 {
-			domain = subdomain + "." + domain
+			f3322Domain = subdomain + "." + domain
 		}
-		f3322.DoF3322v4(domain, extIP)
+		f3322.DoF3322v4(f3322Domain, extIP)
 	case "AAAA":
 		fmt.Println("f3322 doesn’t work with ipv6")
 	}
@@ -231,10 +232,11 @@ func doOray() {
 
 	switch dnsType {
 	case "A":
+		orayDomain := domain
 		if len(subdomain) > 0 && len(domain) > 0 {
-			domain = subdomain + "." + domain
+			orayDomain = subdomain + "." + domain
 		}
-		oray.DoOrayv4(domain, extIP)
+		oray.DoOrayv4(orayDomain, extIP)
 	case "AAAA":
 		fmt.Println("oray doesn’t work with ipv6")
 	}
@@ -322,8 +324,9 @@ func doCloudFlare() {
 		fmt.Println(extIP)
 	}
 
+	cfDomain := domain
 	if len(subdomain) > 0 && len(domain) > 0 {
-		domain = subdomain + "." + domain
+		cfDomain = subdomain + "." + domain
 	}
 
 	// 从文件中读取record id
@@ -342,9 +345,9 @@ func doCloudFlare() {
 	// 根据dnsType选择更新A记录或AAAA记录
 	switch dnsType {
 	case "A":
-		cloudflare.DoCFv4(domain, token, zone_id, rid, extIP)
+		cloudflare.DoCFv4(cfDomain, token, zone_id, rid, extIP)
 	case "AAAA":
-		cloudflare.DoCFv6(domain, token, zone_id, rid, extIP)
+		cloudflare.DoCFv6(cfDomain, token, zone_id, rid, extIP)
 	}
 }
 
