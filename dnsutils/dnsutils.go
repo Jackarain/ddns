@@ -139,7 +139,7 @@ func ExternalIPv4() (string, error) {
 	return ipv4, err
 }
 
-func convrtToUTF8(str string, origEncoding string) string {
+func convertToUTF8(str string, origEncoding string) string {
 	strBytes := []byte(str)
 	byteReader := bytes.NewReader(strBytes)
 	reader, _ := charset.NewReaderLabel(origEncoding, byteReader)
@@ -194,7 +194,7 @@ func DoCommand(cmd string) string {
 				encoding = detected.Charset
 			}
 		}
-		utf8Str := convrtToUTF8(string(out), encoding)
+		utf8Str := convertToUTF8(string(out), encoding)
 		if err != nil {
 			s = strings.TrimSpace(string(out))
 		} else {
