@@ -261,7 +261,7 @@ func doAlidns() {
 	ridFileName := subdomain + dnsType
 	rid, err := dnsutils.FileReadString(ridFileName)
 	if err != nil || rid == "" {
-		rid, err = alidns.FetchRecordID(domain, dnsType)
+		rid, err = alidns.FetchRecordID(domain, subdomain, dnsType)
 		if err != nil {
 			fmt.Println("FetchRecordID: " + err.Error())
 			return

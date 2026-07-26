@@ -56,6 +56,16 @@ func specialURLEncode(value string) string {
 	return encoded
 }
 
+// apiError represents an error response from the Alibaba Cloud API
+type apiError struct {
+	Code    string `json:"Code"`
+	Message string `json:"Message"`
+}
+
+func (e *apiError) Error() string {
+	return fmt.Sprintf("alidns API error: %s - %s", e.Code, e.Message)
+}
+
 // sendRequest sends a GET request to the API and returns the response body
 func sendRequest(params map[string]string) ([]byte, error) {
 	// Add common parameters
@@ -70,10 +80,10 @@ func sendRequest(params map[string]string) ([]byte, error) {
 	// Generate the signature
 	params["Signature"] = generateSignature(params, Passwd)
 
-	// Construct the URL
+	// Construct the URL with proper encoding
 	var query string
 	for k, v := range params {
-		query += "&" + k + "=" + v
+		query += "&" + specialURLEncode(k) + "=" + specialURLEncode(v)
 	}
 	url := "https://alidns.aliyuncs.com/?" + query[1:]
 
@@ -84,7 +94,24 @@ func sendRequest(params map[string]string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
-	return io.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check for API errors (Alibaba Cloud returns HTTP 200 with error JSON body)
+	var apiErr apiError
+	if json.Unmarshal(body, &apiErr) == nil && apiErr.Code != "" {
+		return nil, &apiErr
+	}
+
+	return body, nil
+}
+
+// updateResponse represents the response from UpdateDomainRecord
+type updateResponse struct {
+	RequestId string `json:"RequestId"`
+	RecordId  string `json:"RecordId"`
 }
 
 // registerToAlidns updates a DNS record in AliDNS
@@ -98,8 +125,22 @@ func registerToAlidns(subdomain, rid, ip, tp string) error {
 		"TTL":      "600",
 	}
 
-	_, err := sendRequest(params)
-	return err
+	body, err := sendRequest(params)
+	if err != nil {
+		return err
+	}
+
+	var resp updateResponse
+	if err := json.Unmarshal(body, &resp); err != nil {
+		return fmt.Errorf("failed to parse response: %w", err)
+	}
+
+	if resp.RecordId == "" {
+		return errors.New("update succeeded but no RecordId returned")
+	}
+
+	fmt.Printf("alidns update success, RecordId: %s\n", resp.RecordId)
+	return nil
 }
 
 // DoAlidnsV6 handles IPv6 DNS updates
@@ -195,11 +236,14 @@ func DoAlidnsV4(domain, subdomain, rid, extIP string) {
 	dnsutils.FileWriteString("ipv4address", ipv4)
 }
 
-// FetchRecordID fetches the record ID for a domain
-func FetchRecordID(domain, dnsType string) (string, error) {
+// FetchRecordID fetches the record ID for a domain record matching the given type and subdomain
+func FetchRecordID(domain, subdomain, dnsType string) (string, error) {
 	params := map[string]string{
 		"Action":     "DescribeDomainRecords",
 		"DomainName": domain,
+		"RRKeyWord":  subdomain,
+		"TypeKeyWord": dnsType,
+		"PageSize":   "500",
 	}
 
 	respBody, err := sendRequest(params)
@@ -207,11 +251,11 @@ func FetchRecordID(domain, dnsType string) (string, error) {
 		return "", err
 	}
 
-	return parseRecordID(respBody, dnsType)
+	return parseRecordID(respBody, subdomain, dnsType)
 }
 
 // parseRecordID extracts the Record ID from the JSON response
-func parseRecordID(respBody []byte, dnsType string) (string, error) {
+func parseRecordID(respBody []byte, subdomain, dnsType string) (string, error) {
 	// JSON 内容参考：
 	// {
 	//   "TotalCount": 2,
@@ -243,6 +287,7 @@ func parseRecordID(respBody []byte, dnsType string) (string, error) {
 	// 定义一个结构来解析 JSON
 	type Record struct {
 		RecordId string `json:"RecordId"`
+		RR       string `json:"RR"`
 		Type     string `json:"Type"`
 	}
 
@@ -266,12 +311,12 @@ func parseRecordID(respBody []byte, dnsType string) (string, error) {
 		return "", errors.New("no records found")
 	}
 
-	// 遍历记录，找到 dnsType 匹配的记录
+	// 遍历记录，找到 RR 和 dnsType 都匹配的记录
 	for _, record := range resp.DomainRecords.Record {
-		if record.Type == dnsType {
+		if record.RR == subdomain && record.Type == dnsType {
 			return record.RecordId, nil
 		}
 	}
 
-	return "", fmt.Errorf("no record found with type %s", dnsType)
+	return "", fmt.Errorf("no record found with RR %q and type %s", subdomain, dnsType)
 }
