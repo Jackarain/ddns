@@ -88,7 +88,7 @@ func sendRequest(params map[string]string) ([]byte, error) {
 }
 
 // registerToAlidns updates a DNS record in AliDNS
-func registerToAlidns(domain, subdomain, rid, ip, tp string) error {
+func registerToAlidns(subdomain, rid, ip, tp string) error {
 	params := map[string]string{
 		"Action":   "UpdateDomainRecord",
 		"RecordId": rid,
@@ -103,7 +103,7 @@ func registerToAlidns(domain, subdomain, rid, ip, tp string) error {
 }
 
 // DoAlidnsV6 handles IPv6 DNS updates
-func DoAlidnsV6(domain, subdomain, passwd, extIP string) {
+func DoAlidnsV6(domain, subdomain, rid, extIP string) {
 	var ipv6 string
 	if extIP == "" {
 		ip, err := dnsutils.ExternalIPv6()
@@ -139,7 +139,7 @@ func DoAlidnsV6(domain, subdomain, passwd, extIP string) {
 		return
 	}
 
-	err = registerToAlidns(domain, subdomain, passwd, ipv6, "AAAA")
+	err = registerToAlidns(subdomain, rid, ipv6, "AAAA")
 	if err != nil {
 		fmt.Println("register to alidns error: ", err)
 		return
@@ -186,7 +186,7 @@ func DoAlidnsV4(domain, subdomain, rid, extIP string) {
 		return
 	}
 
-	err = registerToAlidns(domain, subdomain, rid, ipv4, "A")
+	err = registerToAlidns(subdomain, rid, ipv4, "A")
 	if err != nil {
 		fmt.Println("register to alidns error: ", err)
 		return
