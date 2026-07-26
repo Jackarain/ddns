@@ -39,8 +39,8 @@ func ipv6RegisterToCF(domain, token, zone_id, rid, ip string) error {
 }
 
 // ipv4RegisterToCF ...
-func ipv4RegisterToCF(domain, token, _, rid, ip string) error {
-	Url := "https://api.cloudflare.com/client/v4/zones/" + domain + "/dns_records/" + rid
+func ipv4RegisterToCF(domain, token, zone_id, rid, ip string) error {
+	Url := "https://api.cloudflare.com/client/v4/zones/" + zone_id + "/dns_records/" + rid
 
 	// 使用 PUT 方法更新记录.
 	req, err := http.NewRequest("PUT", Url,
